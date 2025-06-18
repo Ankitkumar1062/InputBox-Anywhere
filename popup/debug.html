@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Input Box - Debug Tools</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    .debug-panel {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .debug-section {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .debug-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+    }
+    
+    .log-container {
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .log-entry {
+      margin-bottom: 4px;
+      padding: 4px;
+      border-radius: 3px;
+    }
+    
+    .log-error { background-color: rgba(244, 67, 54, 0.1); color: #d32f2f; }
+    .log-warn { background-color: rgba(255, 152, 0, 0.1); color: #ef6c00; }
+    .log-info { background-color: rgba(33, 150, 243, 0.1); color: #1976d2; }
+    .log-debug { background-color: rgba(76, 175, 80, 0.1); color: #388e3c; }
+    .log-trace { background-color: rgba(156, 39, 176, 0.1); color: #7b1fa2; }
+    
+    .debug-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .collapsible {
+      margin-bottom: 12px;
+    }
+    
+    .collapsible-header {
+      background-color: var(--bg-dark);
+      padding: 10px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .collapsible-content {
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      display: none;
+    }
+    
+    .test-results {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 4px;
+    }
+    
+    .test-success {
+      background-color: rgba(76, 175, 80, 0.1);
+      border: 1px solid #4caf50;
+    }
+    
+    .test-failure {
+      background-color: rgba(244, 67, 54, 0.1);
+      border: 1px solid #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="debug-panel">
+    <header>
+      <h1>Debug Tools</h1>
+      <p>Troubleshoot Custom Input Box Everywhere</p>
+    </header>
+    
+    <div class="debug-section">
+      <h2 class="debug-title">LLM Connection Tester</h2>
+      <div class="debug-actions">
+        <select id="debug-model-selector" class="dropdown">
+          <option value="dummyLLM">Simple Generator (No API)</option>
+          <option value="mistral">Mistral 7B</option>
+          <option value="phi3">Phi-3 Mini</option>
+        </select>
+        <input type="text" id="debug-api-key" placeholder="API Key (for online models)" class="text-input">
+        <button id="test-llm-connection" class="primary-button">Test Connection</button>
+      </div>
+      <div id="llm-test-results"></div>
+    </div>
+    
+    <div class="debug-section">
+      <h2 class="debug-title">Try LLM Generation</h2>
+      <textarea id="debug-prompt" rows="4" class="text-input" placeholder="Enter a prompt to test"></textarea>
+      <div class="debug-actions">
+        <button id="generate-test" class="primary-button">Generate Response</button>
+      </div>
+      <div id="generation-results"></div>
+    </div>
+    
+    <div class="debug-section">
+      <h2 class="debug-title">Logs</h2>
+      <div class="debug-actions">
+        <select id="debug-level" class="dropdown">
+          <option value="ERROR">Error Only</option>
+          <option value="WARN">Warning & Error</option>
+          <option value="INFO" selected>Info & Above</option>
+          <option value="DEBUG">Debug & Above</option>
+          <option value="TRACE">All (Trace)</option>
+        </select>
+        <button id="clear-logs" class="secondary-button">Clear Logs</button>
+      </div>
+      <div id="log-container" class="log-container"></div>
+    </div>
+    
+    <div class="debug-section">
+      <h2 class="debug-title">Extension Information</h2>
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+          <span>Configuration</span>
+          <span>▼</span>
+        </div>
+        <div class="collapsible-content">
+          <pre id="extension-config">Loading...</pre>
+        </div>
+      </div>
+      
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+          <span>Extension Manifest</span>
+          <span>▼</span>
+        </div>
+        <div class="collapsible-content">
+          <pre id="extension-manifest">Loading...</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="debug-actions">
+      <button id="create-diagnostic" class="primary-button">Create Diagnostic Report</button>
+      <button id="back-to-settings" class="secondary-button">Back to Settings</button>
+    </div>
+  </div>
+  
+  <script src="../lib/debug-utils.js"></script>
+  <script>
+    // Initialize debug tools
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load current configuration
+      browser.storage.sync.get('inputBoxConfig').then(result => {
+        const config = result.inputBoxConfig || {};
+        document.getElementById('extension-config').textContent = JSON.stringify(config, null, 2);
+        
+        // Pre-fill API key if available
+        if (config.apiKey) {
+          document.getElementById('debug-api-key').value = config.apiKey;
+        }
+        
+        // Pre-select current model
+        if (config.llmModel) {
+          document.getElementById('debug-model-selector').value = config.llmModel;
+        }
+      });
+      
+      // Load extension manifest
+      browser.runtime.getManifest().then(manifest => {
+        document.getElementById('extension-manifest').textContent = JSON.stringify(manifest, null, 2);
+      });
+      
+      // Set up event listeners
+      document.getElementById('test-llm-connection').addEventListener('click', testLLMConnection);
+      document.getElementById('generate-test').addEventListener('click', generateTest);
+      document.getElementById('clear-logs').addEventListener('click', clearLogs);
+      document.getElementById('debug-level').addEventListener('change', changeLogLevel);
+      document.getElementById('create-diagnostic').addEventListener('click', createDiagnostic);
+      document.getElementById('back-to-settings').addEventListener('click', () => {
+        window.location.href = 'popup.html';
+      });
+      
+      // Set initial log level
+      DebugUtils.setLevel(document.getElementById('debug-level').value);
+      
+      // Load initial logs
+      updateLogDisplay();
+    });
+    
+    // Toggle collapsible sections
+    function toggleCollapsible(element) {
+      const content = element.nextElementSibling;
+      const arrowSpan = element.querySelector('span:last-child');
+      
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+        arrowSpan.textContent = '▼';
+      } else {
+        content.style.display = 'block';
+        arrowSpan.textContent = '▲';
+      }
+    }
+    
+    // Test LLM connection
+    function testLLMConnection() {
+      const modelSelector = document.getElementById('debug-model-selector');
+      const apiKeyInput = document.getElementById('debug-api-key');
+      const resultsContainer = document.getElementById('llm-test-results');
+      
+      const model = modelSelector.value;
+      const apiKey = apiKeyInput.value.trim();
+      
+      // Show loading state
+      resultsContainer.innerHTML = '<div class="loading">Testing connection...</div>';
+      
+      // Log the test
+      DebugUtils.info(`Testing LLM connection for model: ${model}`, { apiKey: apiKey ? '******' : 'none' });
+      
+      // Call the test function
+      DebugUtils.testLLMConnection(model, apiKey)
+        .then(result => {
+          if (result.success) {
+            resultsContainer.innerHTML = `
+              <div class="test-results test-success">
+                <h3>Connection Successful</h3>
+                <p>Model: ${model}</p>
+                <p>Latency: ${result.latency.toFixed(2)}ms</p>
+                <pre>${JSON.stringify(result.response, null, 2)}</pre>
+              </div>
+            `;
+          } else {
+            resultsContainer.innerHTML = `
+              <div class="test-results test-failure">
+                <h3>Connection Failed</h3>
+                <p>Model: ${model}</p>
+                <p>Error: ${result.error || result.statusText || 'Unknown error'}</p>
+                <p>Status: ${result.status || 'N/A'}</p>
+              </div>
+            `;
+          }
+        })
+        .catch(error => {
+          DebugUtils.error('LLM test error:', error);
+          resultsContainer.innerHTML = `
+            <div class="test-results test-failure">
+              <h3>Test Error</h3>
+              <p>An error occurred while testing: ${error.message}</p>
+            </div>
+          `;
+        });
+    }
+    
+    // Generate test response
+    function generateTest() {
+      const promptInput = document.getElementById('debug-prompt');
+      const modelSelector = document.getElementById('debug-model-selector');
+      const apiKeyInput = document.getElementById('debug-api-key');
+      const resultsContainer = document.getElementById('generation-results');
+      
+      const prompt = promptInput.value.trim();
+      const model = modelSelector.value;
+      const apiKey = apiKeyInput.value.trim();
+      
+      if (!prompt) {
+        alert('Please enter a prompt');
+        return;
+      }
+      
+      // Show loading state
+      resultsContainer.innerHTML = '<div class="loading">Generating response...</div>';
+      
+      // Log the test
+      DebugUtils.info(`Generating test response for prompt: "${prompt.substring(0, 30)}..."`, { 
+        model, 
+        apiKey: apiKey ? '******' : 'none' 
+      });
+      
+      // Call the background script
+      browser.runtime.sendMessage({
+        action: 'generateLLMSuggestion',
+        prompt,
+        model
+      }).then(response => {
+        if (response && response.suggestion) {
+          resultsContainer.innerHTML = `
+            <div class="test-results test-success">
+              <h3>Generation Successful</h3>
+              <p><strong>Prompt:</strong> ${prompt}</p>
+              <p><strong>Response:</strong></p>
+              <pre>${response.suggestion}</pre>
+            </div>
+          `;
+        } else {
+          resultsContainer.innerHTML = `
+            <div class="test-results test-failure">
+              <h3>Generation Failed</h3>
+              <p>Error: ${response.error || 'Unknown error'}</p>
+            </div>
+          `;
+        }
+      }).catch(error => {
+        DebugUtils.error('Generation test error:', error);
+        resultsContainer.innerHTML = `
+          <div class="test-results test-failure">
+            <h3>Test Error</h3>
+            <p>An error occurred: ${error.message}</p>
+          </div>
+        `;
+      });
+    }
+    
+    // Clear logs
+    function clearLogs() {
+      DebugUtils.clearHistory();
+      updateLogDisplay();
+    }
+    
+    // Change log level
+    function changeLogLevel(event) {
+      const level = event.target.value;
+      DebugUtils.setLevel(level);
+    }
+    
+    // Update log display
+    function updateLogDisplay() {
+      const logContainer = document.getElementById('log-container');
+      const logs = DebugUtils.getHistory();
+      
+      // Clear current content
+      logContainer.innerHTML = '';
+      
+      if (logs.length === 0) {
+        logContainer.innerHTML = '<div class="log-entry">No logs yet</div>';
+        return;
+      }
+      
+      // Add each log entry
+      logs.forEach(log => {
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        
+        // Add appropriate class based on level
+        switch (log.level) {
+          case DebugUtils.LEVELS.ERROR:
+            logEntry.classList.add('log-error');
+            break;
+          case DebugUtils.LEVELS.WARN:
+            logEntry.classList.add('log-warn');
+            break;
+          case DebugUtils.LEVELS.INFO:
+            logEntry.classList.add('log-info');
+            break;
+          case DebugUtils.LEVELS.DEBUG:
+            logEntry.classList.add('log-debug');
+            break;
+          case DebugUtils.LEVELS.TRACE:
+            logEntry.classList.add('log-trace');
+            break;
+        }
+        
+        // Format timestamp
+        const timestamp = log.timestamp.toISOString().replace('T', ' ').split('.')[0];
+        
+        // Format data if present
+        let dataText = '';
+        if (log.data) {
+          try {
+            dataText = JSON.stringify(log.data);
+          } catch (e) {
+            dataText = String(log.data);
+          }
+        }
+        
+        logEntry.textContent = `[${timestamp}] ${log.message} ${dataText}`;
+        logContainer.appendChild(logEntry);
+      });
+    }
+    
+    // Create diagnostic report
+    function createDiagnostic() {
+      DebugUtils.info('Creating diagnostic report');
+      
+      DebugUtils.createDiagnosticReport().then(report => {
+        // Create a blob and download it
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `custom-input-box-diagnostic-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      });
+    }
+  </script>
+</body>
+</html>

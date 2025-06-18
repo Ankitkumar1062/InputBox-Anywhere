@@ -1,0 +1,339 @@
+/**
+ * Custom Input Box Everywhere
+ * Theme variants for the input box
+ */
+
+/* Light Theme (Default) */
+.custom-input-box-theme-light {
+  --bg-color: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --text-color: #333333;
+  --text-light: #666666;
+  --border-color: #dddddd;
+  --primary-color: #4a90e2;
+  --accent-color: #4caf50;
+  --accent-color-2: #9c27b0;
+  --error-color: #e53935;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.custom-input-box-theme-light .custom-input-box-controls {
+  background-color: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+.custom-input-box-theme-light #custom-input-box,
+.custom-input-box-theme-light .custom-input-box-rich {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.custom-input-box-theme-light .custom-input-box-toolbar {
+  background-color: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+/* Dark Theme */
+.custom-input-box-theme-dark {
+  --bg-color: #2d2d2d;
+  --bg-secondary: #252525;
+  --text-color: #f0f0f0;
+  --text-light: #aaaaaa;
+  --border-color: #404040;
+  --primary-color: #6ab0ff;
+  --accent-color: #6abf69;
+  --accent-color-2: #ce93d8;
+  --error-color: #f44336;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-controls {
+  background-color: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-controls button {
+  color: var(--text-light);
+}
+
+.custom-input-box-theme-dark .custom-input-box-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+}
+
+.custom-input-box-theme-dark #custom-input-box-mode {
+  color: var(--text-light);
+}
+
+.custom-input-box-theme-dark #custom-input-box,
+.custom-input-box-theme-dark .custom-input-box-rich {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-toolbar {
+  background-color: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-toolbar button {
+  color: var(--text-light);
+}
+
+.custom-input-box-theme-dark .custom-input-box-toolbar button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-suggestions {
+  background-color: var(--bg-secondary);
+  border-top-color: var(--border-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-suggestions-header {
+  color: var(--text-light);
+}
+
+.custom-input-box-theme-dark .custom-input-box-suggestion-item {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-suggestion-item:hover {
+  background-color: rgba(106, 176, 255, 0.1);
+  border-color: var(--primary-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-template-menu {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-template-item {
+  color: var(--text-color);
+}
+
+.custom-input-box-theme-dark .custom-input-box-template-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.custom-input-box-theme-dark .custom-input-box-template-close {
+  border-top-color: var(--border-color);
+  color: var(--text-light);
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary {
+  background-color: rgba(50, 50, 55, 0.95);
+  border-color: #3a3a3a;
+  color: #f0f0f0;
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary-title {
+  color: #6abf69;
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary-actions {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary-copy {
+  color: #6ab0ff;
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary-copy:hover {
+  background-color: rgba(106, 176, 255, 0.1);
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary-close {
+  color: #aaa;
+}
+
+.custom-input-box-theme-dark .custom-input-box-summary-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ddd;
+}
+
+/* Minimal Theme */
+.custom-input-box-theme-minimal {
+  --bg-color: #ffffff;
+  --bg-secondary: #fafafa;
+  --text-color: #333333;
+  --text-light: #666666;
+  --border-color: #eeeeee;
+  --primary-color: #4a90e2;
+  --accent-color: #4caf50;
+  --accent-color-2: #9c27b0;
+  --error-color: #e53935;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 6px var(--shadow-color);
+  border-radius: 4px;
+}
+
+.custom-input-box-theme-minimal .custom-input-box-controls {
+  background-color: var(--bg-color);
+  border-bottom-color: var(--border-color);
+  padding: 6px 8px;
+}
+
+.custom-input-box-theme-minimal .custom-input-box-controls button {
+  font-size: 14px;
+  padding: 3px 6px;
+}
+
+.custom-input-box-theme-minimal #custom-input-box,
+.custom-input-box-theme-minimal .custom-input-box-rich {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  border-width: 1px;
+  padding: 8px;
+}
+
+.custom-input-box-theme-minimal .custom-input-box-toolbar {
+  background-color: var(--bg-color);
+  border-bottom-color: var(--border-color);
+  padding: 4px 8px;
+}
+
+.custom-input-box-theme-minimal .custom-input-box-toolbar button {
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+.custom-input-box-theme-minimal .custom-input-box-input-container {
+  padding: 8px;
+}
+
+/* System Theme (follows system preferences) */
+@media (prefers-color-scheme: dark) {
+  .custom-input-box-theme-system {
+    --bg-color: #2d2d2d;
+    --bg-secondary: #252525;
+    --text-color: #f0f0f0;
+    --text-light: #aaaaaa;
+    --border-color: #404040;
+    --primary-color: #6ab0ff;
+    --accent-color: #6abf69;
+    --accent-color-2: #ce93d8;
+    --error-color: #f44336;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-controls {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-controls button {
+    color: var(--text-light);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+  }
+  
+  .custom-input-box-theme-system #custom-input-box-mode {
+    color: var(--text-light);
+  }
+  
+  .custom-input-box-theme-system #custom-input-box,
+  .custom-input-box-theme-system .custom-input-box-rich {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-toolbar {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-toolbar button {
+    color: var(--text-light);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-toolbar button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-color);
+    color: var(--text-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-suggestions {
+    background-color: var(--bg-secondary);
+    border-top-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-suggestions-header {
+    color: var(--text-light);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-suggestion-item {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-suggestion-item:hover {
+    background-color: rgba(106, 176, 255, 0.1);
+    border-color: var(--primary-color);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .custom-input-box-theme-system {
+    --bg-color: #ffffff;
+    --bg-secondary: #f8f8f8;
+    --text-color: #333333;
+    --text-light: #666666;
+    --border-color: #dddddd;
+    --primary-color: #4a90e2;
+    --accent-color: #4caf50;
+    --accent-color-2: #9c27b0;
+    --error-color: #e53935;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-controls {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system #custom-input-box,
+  .custom-input-box-theme-system .custom-input-box-rich {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+  }
+  
+  .custom-input-box-theme-system .custom-input-box-toolbar {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+  }
+}

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Input Box Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header>
+      <h1>Custom Input Box Everywhere</h1>
+      <p>Configure your eye-level input experience</p>
+    </header>
+    
+    <div class="tabs">
+      <button class="tab-button active" data-tab="basic">Basic</button>
+      <button class="tab-button" data-tab="advanced">Advanced</button>
+      <button class="tab-button" data-tab="templates">Templates</button>
+      <button class="tab-button" data-tab="about">About</button>
+    </div>
+    
+    <div class="tab-content">
+      <!-- Basic Settings Tab -->
+      <div id="basic" class="tab-pane active">
+        <section>
+          <h2>Enable/Disable</h2>
+          <div class="toggle-container">
+            <label class="toggle">
+              <input type="checkbox" id="extension-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Enable Custom Input Box</span>
+          </div>
+        </section>
+        
+        <section>
+          <h2>Mode</h2>
+          <div class="radio-group">
+            <label class="radio">
+              <input type="radio" name="mode" value="habit" checked>
+              <span class="radio-custom"></span>
+              <span class="radio-label">Habit Mode</span>
+            </label>
+            <p class="hint">Minimal interface, syncs with focused input fields</p>
+            
+            <label class="radio">
+              <input type="radio" name="mode" value="advanced">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Advanced Mode</span>
+            </label>
+            <p class="hint">Added features: LLM suggestions, CSS modification, content summarization</p>
+          </div>
+        </section>
+        
+        <section>
+          <h2>Position</h2>
+          <div class="radio-group">
+            <label class="radio">
+              <input type="radio" name="position" value="top" checked>
+              <span class="radio-custom"></span>
+              <span class="radio-label">Top</span>
+            </label>
+            
+            <label class="radio">
+              <input type="radio" name="position" value="center">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Center</span>
+            </label>
+            
+            <label class="radio">
+              <input type="radio" name="position" value="floating">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Floating</span>
+            </label>
+            
+            <label class="radio">
+              <input type="radio" name="position" value="custom">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Custom</span>
+            </label>
+            <p class="hint">Use the drag handle to position manually</p>
+          </div>
+        </section>
+        
+        <section>
+          <h2>Theme</h2>
+          <div class="radio-group">
+            <label class="radio">
+              <input type="radio" name="theme" value="light" checked>
+              <span class="radio-custom"></span>
+              <span class="radio-label">Light</span>
+            </label>
+            
+            <label class="radio">
+              <input type="radio" name="theme" value="dark">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Dark</span>
+            </label>
+            
+            <label class="radio">
+              <input type="radio" name="theme" value="minimal">
+              <span class="radio-custom"></span>
+              <span class="radio-label">Minimal</span>
+            </label>
+            
+            <label class="radio">
+              <input type="radio" name="theme" value="system">
+              <span class="radio-custom"></span>
+              <span class="radio-label">System (follow OS setting)</span>
+            </label>
+          </div>
+        </section>
+        
+        <section>
+          <h2>Keyboard Shortcuts</h2>
+          <div class="shortcut-info">
+            <div class="shortcut-row">
+              <span class="shortcut-keys">Alt+Shift+I</span>
+              <span class="shortcut-desc">Toggle extension on/off</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys">Alt+Shift+M</span>
+              <span class="shortcut-desc">Toggle between Habit/Advanced modes</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-keys">Alt+1, Alt+2, ...</span>
+              <span class="shortcut-desc">Insert templates 1-9</span>
+            </div>
+          </div>
+        </section>
+        
+        <button id="save-basic" class="primary-button">Save Settings</button>
+      </div>
+      
+      <!-- Advanced Settings Tab -->
+      <div id="advanced" class="tab-pane">
+        <section>
+          <h2>Advanced Features</h2>
+          <div class="toggle-container">
+            <label class="toggle">
+              <input type="checkbox" id="editor-support-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Editor Support</span>
+            <p class="hint">Enable specialized support for rich text editors and code editors</p>
+          </div>
+          
+          <div class="toggle-container">
+            <label class="toggle">
+              <input type="checkbox" id="css-modification-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">CSS Modification</span>
+            <p class="hint">Modify webpage CSS to improve input field positions (Advanced Mode only)</p>
+          </div>
+          
+          <div class="toggle-container">
+            <label class="toggle">
+              <input type="checkbox" id="summarize-content-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Auto-summarize Long Content</span>
+            <p class="hint">Automatically generate summaries for long text fields (Advanced Mode only)</p>
+          </div>
+          
+          <div class="toggle-container">
+            <label class="toggle">
+              <input type="checkbox" id="drag-enabled-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Draggable Position</span>
+            <p class="hint">Allow dragging to reposition the input box</p>
+          </div>
+        </section>
+        
+        <section>
+          <h2>LLM Settings</h2>
+          <div class="input-group">
+            <label for="llm-model">LLM Model</label>
+            <select id="llm-model">
+              <option value="dummyLLM">Simple Generator (No API Required)</option>
+              <option value="mistral">Mistral 7B (Free, Requires API Key)</option>
+              <option value="phi3">Phi-3 Mini (Free, Requires API Key)</option>
+            </select>
+            <p class="hint">Mistral provides better quality for CSS modifications and summarization</p>
+          </div>
+          
+          <div class="input-group">
+            <label for="api-key">Hugging Face API Key</label>
+            <input type="text" id="api-key" placeholder="Enter your Hugging Face API key">
+            <p class="hint"><strong>Free:</strong> Get your key from <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a></p>
+          </div>
+          
+          <div class="api-key-instructions">
+            <div class="info-box">
+              <h3>How to Get Your Free API Key</h3>
+              <ol>
+                <li>Sign up for a free account at <a href="https://huggingface.co/join" target="_blank">huggingface.co</a></li>
+                <li>Go to <a href="https://huggingface.co/settings/tokens" target="_blank">Settings > Access Tokens</a></li>
+                <li>Click "New token", name it "CustomInputBox" and select "Read" role</li>
+                <li>Copy the generated token and paste it above</li>
+              </ol>
+              <p><strong>Note:</strong> The free tier has generous limits for personal use. No credit card required.</p>
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <button id="test-llm-connection" class="secondary-button">Test LLM Connection</button>
+            <div id="llm-test-result" class="test-result"></div>
+          </div>
+        </section>
+        
+        <section>
+          <h2>CSS Rules</h2>
+          <div id="css-rules-container" class="css-rules-container">
+            <div class="css-rule-header">
+              <span>Selector</span>
+              <span>Properties</span>
+              <span>Actions</span>
+            </div>
+            <div id="css-rules-list" class="css-rules-list">
+              <!-- Rules will be added here dynamically -->
+            </div>
+          </div>
+          
+          <button id="generate-css-rules" class="secondary-button">Generate CSS Rules</button>
+          <div id="generate-css-form" class="generate-css-form" style="display: none;">
+            <label for="css-description">Describe what you want to change:</label>
+            <textarea id="css-description" placeholder="Example: Move text inputs to eye level, or make content more readable by adjusting spacing"></textarea>
+            <div class="form-actions">
+              <button id="confirm-generate-css" class="primary-button">Generate</button>
+              <button id="cancel-generate-css" class="secondary-button">Cancel</button>
+            </div>
+          </div>
+        </section>
+        
+        <button id="save-advanced" class="primary-button">Save Settings</button>
+      </div>
+      
+      <!-- Templates Tab -->
+      <div id="templates" class="tab-pane">
+        <section>
+          <h2>Manage Templates</h2>
+          <p>Templates let you quickly insert frequently used text. Use <kbd>Alt+1</kbd> through <kbd>Alt+9</kbd> to insert templates.</p>
+          
+          <div id="templates-container" class="templates-container">
+            <div class="template-header">
+              <span>Name</span>
+              <span>Content</span>
+              <span>Actions</span>
+            </div>
+            <div id="templates-list" class="templates-list">
+              <!-- Templates will be added here dynamically -->
+            </div>
+          </div>
+          
+          <button id="add-template" class="secondary-button">Add Template</button>
+          <div id="template-form" class="template-form" style="display: none;">
+            <input type="hidden" id="template-id">
+            <div class="input-group">
+              <label for="template-name">Template Name:</label>
+              <input type="text" id="template-name" placeholder="e.g., Greeting, Signature">
+            </div>
+            <div class="input-group">
+              <label for="template-content">Template Content:</label>
+              <textarea id="template-content" placeholder="Enter the template text..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button id="save-template" class="primary-button">Save Template</button>
+              <button id="cancel-template" class="secondary-button">Cancel</button>
+            </div>
+          </div>
+          
+          <button id="generate-template" class="secondary-button">Generate Template with LLM</button>
+          <div id="generate-template-form" class="template-form" style="display: none;">
+            <div class="input-group">
+              <label for="template-description">Describe what kind of template you need:</label>
+              <textarea id="template-description" placeholder="Example: Create a polite email template for requesting a meeting"></textarea>
+            </div>
+            <div class="form-actions">
+              <button id="confirm-generate-template" class="primary-button">Generate</button>
+              <button id="cancel-generate-template" class="secondary-button">Cancel</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      
+      <!-- About Tab -->
+      <div id="about" class="tab-pane">
+        <section>
+          <h2>About Custom Input Box Everywhere</h2>
+          <p>Version 1.2.0</p>
+          <p>This extension provides a floating input box that syncs with the currently focused input field, allowing you to type at eye level and reduce neck strain.</p>
+          
+          <h3>Features:</h3>
+          <ul>
+            <li><strong>Habit Mode:</strong> Simple input box that syncs with focused fields</li>
+            <li><strong>Advanced Mode:</strong> AI-powered features including CSS modification and content summarization</li>
+            <li><strong>Multiple positions:</strong> Top, center, floating, or custom position</li>
+            <li><strong>Template system:</strong> Save and quickly insert frequently used text</li>
+            <li><strong>Editor support:</strong> Works with rich text editors and code editors</li>
+            <li><strong>Theme options:</strong> Light, dark, minimal, or system-based</li>
+          </ul>
+          
+          <h3>Privacy:</h3>
+          <p>This extension does not collect or transmit any personal data. When using online LLM features, text is sent to the selected model provider (Hugging Face) according to their privacy policy.</p>
+          
+          <h3>Credits:</h3>
+          <p>This extension uses the following open-source models:</p>
+          <ul>
+            <li>Mistral 7B - <a href="https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2" target="_blank">mistralai/Mistral-7B-Instruct-v0.2</a></li>
+            <li>Phi-3 Mini - <a href="https://huggingface.co/microsoft/Phi-3-mini-4k-instruct" target="_blank">microsoft/Phi-3-mini-4k-instruct</a></li>
+          </ul>
+          
+          <h3>Feedback:</h3>
+          <p>If you have suggestions or encounter issues, please let us know!</p>
+        </section>
+      </div>
+    </div>
+    
+    <footer>
+      <button id="close-popup" class="secondary-button">Close</button>
+      <div class="debug-link">
+        <a href="debug.html">Troubleshoot LLM Issues</a>
+      </div>
+    </footer>
+  </div>
+  
+  <script src="../lib/llm-service.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

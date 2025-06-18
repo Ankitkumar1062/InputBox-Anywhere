@@ -1,0 +1,90 @@
+{
+  "manifest_version": 3,
+  "name": "Custom Input Box Everywhere",
+  "version": "1.2.0",
+  "description": "Provides a custom input box at eye level for a better typing experience with advanced features",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "custom-input-box@example.com"
+    }
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "scripts": ["lib/llm-service.js", "background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "lib/editor-detector.js",
+        "lib/css-modifier.js",
+        "lib/template-manager.js",
+        "lib/debug-utils.js",
+        "lib/llm-service.js",
+        "content.js"
+      ],
+      "css": [
+        "styles/input-box.css",
+        "styles/themes.css",
+        "styles/editor-styles.css"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "commands": {
+    "toggle-extension": {
+      "suggested_key": {
+        "default": "Alt+Shift+I"
+      },
+      "description": "Toggle the custom input box"
+    },
+    "toggle-mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+M"
+      },
+      "description": "Toggle between Habit and Advanced modes"
+    },
+    "quick-template-1": {
+      "suggested_key": {
+        "default": "Alt+1"
+      },
+      "description": "Insert template 1"
+    },
+    "quick-template-2": {
+      "suggested_key": {
+        "default": "Alt+2"
+      },
+      "description": "Insert template 2"
+    }
+  },
+  "options_ui": {
+    "page": "popup/popup.html",
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

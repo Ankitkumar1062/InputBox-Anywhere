@@ -1,0 +1,131 @@
+/**
+ * Custom Input Box Everywhere
+ * Specific styles for various editor types
+ */
+
+/* TinyMCE Editor styles */
+.custom-input-box-editor-tinymce {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  padding: 10px;
+}
+
+.custom-input-box-editor-tinymce p {
+  margin: 0 0 1em 0;
+}
+
+.custom-input-box-editor-tinymce h1, 
+.custom-input-box-editor-tinymce h2, 
+.custom-input-box-editor-tinymce h3,
+.custom-input-box-editor-tinymce h4,
+.custom-input-box-editor-tinymce h5,
+.custom-input-box-editor-tinymce h6 {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.custom-input-box-editor-tinymce ul, 
+.custom-input-box-editor-tinymce ol {
+  margin: 0 0 1em 0;
+  padding-left: 2em;
+}
+
+/* CKEditor styles */
+.custom-input-box-editor-ckeditor {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  padding: 10px;
+}
+
+.custom-input-box-editor-ckeditor p {
+  margin: 0 0 1em 0;
+}
+
+.custom-input-box-editor-ckeditor ul, 
+.custom-input-box-editor-ckeditor ol {
+  margin: 0 0 1em 0;
+  padding-left: 2em;
+}
+
+.custom-input-box-editor-ckeditor blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid #ccc;
+  color: #666;
+}
+
+/* Quill Editor styles */
+.custom-input-box-editor-quill {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  padding: 10px;
+}
+
+.custom-input-box-editor-quill p {
+  margin: 0 0 1em 0;
+}
+
+.custom-input-box-editor-quill ul, 
+.custom-input-box-editor-quill ol {
+  margin: 0 0 1em 0;
+  padding-left: 2em;
+}
+
+.custom-input-box-editor-quill pre {
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+/* CodeMirror styles */
+.custom-input-box-editor-codemirror {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  line-height: 1.5;
+  tab-size: 4;
+  white-space: pre;
+  padding: 10px;
+}
+
+/* Ace Editor styles */
+.custom-input-box-editor-ace {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  line-height: 1.5;
+  tab-size: 4;
+  white-space: pre;
+  padding: 10px;
+}
+
+/* Monaco Editor styles */
+.custom-input-box-editor-monaco {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  line-height: 1.5;
+  tab-size: 4;
+  white-space: pre;
+  padding: 10px;
+}
+
+/* For dark theme compatibility */
+.custom-input-box-theme-dark .custom-input-box-editor-codemirror,
+.custom-input-box-theme-dark .custom-input-box-editor-ace,
+.custom-input-box-theme-dark .custom-input-box-editor-monaco {
+  background-color: #2d2d2d;
+  color: #f0f0f0;
+}
+
+.custom-input-box-theme-dark .custom-input-box-editor-codemirror .cm-keyword,
+.custom-input-box-theme-dark .custom-input-box-editor-ace .ace_keyword,
+.custom-input-box-theme-dark .custom-input-box-editor-monaco .mtk1 {
+  color: #cc99cd;
+}
+
+.custom-input-box-theme-dark .custom-input-box-editor-codemirror .cm-string,
+.custom-input-box-theme-dark .custom-input-box-editor-ace .ace_string,
+.custom-input-box-theme-dark .custom-input-box-editor-monaco .mtk5 {
+  color: #7ec699;
+}
+
+.custom-input-box-theme-dark .custom-input-box-editor-codemirror .cm-comment,
+.custom-input-box-theme-dark .custom-input-box-editor-ace .ace_comment,
+.custom-input-box-theme-dark .custom-input-box-editor-monaco .mtk6 {
+  color: #999;
+}

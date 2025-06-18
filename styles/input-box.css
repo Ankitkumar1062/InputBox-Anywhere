@@ -1,0 +1,505 @@
+/**
+ * Custom Input Box Everywhere
+ * Main styles for the input box
+ */
+
+/* Container Styles */
+#custom-input-box-container {
+  position: fixed;
+  width: 90%;
+  max-width: 800px;
+  z-index: 99999;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Position variants */
+.custom-input-box-position-top {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.custom-input-box-position-center {
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+}
+
+.custom-input-box-position-floating {
+  top: 150px;
+  right: 20px;
+  width: 350px;
+}
+
+.custom-input-box-position-custom {
+  /* Custom position is set inline by the script */
+}
+
+/* Controls */
+.custom-input-box-controls {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  user-select: none;
+}
+
+.custom-input-box-controls button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #666;
+  border-radius: 4px;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.custom-input-box-controls button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.custom-input-box-close {
+  margin-left: auto !important;
+  font-size: 18px !important;
+}
+
+.custom-input-box-close:hover {
+  color: #e53935 !important;
+}
+
+#custom-input-box-mode {
+  margin-right: auto;
+  font-weight: 600;
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  align-items: center;
+}
+
+.advanced-mode-badge {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 14px;
+  color: #4a90e2;
+}
+
+/* Drag Handle */
+.custom-input-box-drag-handle {
+  cursor: move;
+  padding: 2px 8px;
+  margin-right: 8px;
+  border-radius: 4px;
+  color: #aaa;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-input-box-drag-handle:hover {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+/* Input Container */
+.custom-input-box-input-container {
+  padding: 10px;
+  flex-grow: 1;
+  display: flex;
+}
+
+#custom-input-box {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 40px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#custom-input-box:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+/* Rich text editor styles */
+.custom-input-box-rich {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  overflow-y: auto;
+  line-height: 1.5;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-input-box-rich:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+/* Rich text toolbar */
+.custom-input-box-toolbar {
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+}
+
+.custom-input-box-toolbar button {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+}
+
+.custom-input-box-toolbar button:hover {
+  background-color: #f0f0f0;
+  border-color: #ddd;
+}
+
+.custom-input-box-toolbar-bold {
+  font-weight: bold;
+}
+
+.custom-input-box-toolbar-italic {
+  font-style: italic;
+}
+
+.custom-input-box-toolbar-underline {
+  text-decoration: underline;
+}
+
+/* Template menu */
+.custom-input-box-template-menu {
+  position: fixed;
+  width: 200px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  z-index: 999999;
+  overflow: hidden;
+}
+
+.custom-input-box-template-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.custom-input-box-template-item:hover {
+  background-color: #f5f5f5;
+}
+
+.custom-input-box-template-close {
+  border-top: 1px solid #eee;
+  text-align: center;
+  color: #666;
+}
+
+/* Animations */
+@keyframes slide-down {
+  from {
+    transform: translateX(-50%) translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-50%) translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes float-in {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes float-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* Suggestions in Advanced Mode */
+.custom-input-box-suggestions {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.custom-input-box-suggestions-header {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.custom-input-box-suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.custom-input-box-suggestions-list li {
+  margin-bottom: 5px;
+}
+
+.custom-input-box-suggestion-item {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.custom-input-box-suggestion-item:hover {
+  background-color: #f0f8ff;
+  border-color: #4a90e2;
+}
+
+/* Enter button */
+.custom-input-box-enter {
+  color: var(--primary-color, #4a90e2) !important;
+  font-weight: bold !important;
+}
+
+.custom-input-box-enter span {
+  font-size: 16px;
+}
+
+/* Summarize button */
+.custom-input-box-summarize {
+  color: var(--accent-color, #4caf50) !important;
+}
+
+.custom-input-box-summarize span {
+  font-size: 16px;
+}
+
+/* CSS Modification button */
+.custom-input-box-css-button {
+  color: var(--accent-color-2, #9c27b0) !important;
+}
+
+.custom-input-box-css-button span {
+  font-size: 16px;
+}
+
+/* Loading indicator */
+.custom-input-box-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 8px;
+}
+
+.custom-input-box-theme-dark .custom-input-box-loading {
+  background-color: rgba(45, 45, 45, 0.9);
+  color: white;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(74, 144, 226, 0.2);
+  border-top-color: var(--primary-color, #4a90e2);
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced summary styles */
+.custom-input-box-summary {
+  background-color: rgba(255, 255, 240, 0.95);
+  border: 1px solid #e0e0a0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-input-box-summary-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--accent-color, #4caf50);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-input-box-summary-content {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.custom-input-box-summary-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.custom-input-box-summary-copy {
+  background: none;
+  border: none;
+  color: var(--primary-color, #4a90e2);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+}
+
+.custom-input-box-summary-copy:hover {
+  background-color: rgba(74, 144, 226, 0.1);
+}
+
+.custom-input-box-summary-close {
+  font-size: 18px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.custom-input-box-summary-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+/* Suggestion loading indicator */
+.suggestion-loading {
+  padding: 8px;
+  font-style: italic;
+  color: var(--text-light, #666);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestion-loading::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  border-top-color: var(--primary-color, #4a90e2);
+  animation: spin 1s linear infinite;
+}
+
+/* CSS loading indicator animation */
+.css-loading-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
