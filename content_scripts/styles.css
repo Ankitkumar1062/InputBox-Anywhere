@@ -1,0 +1,161 @@
+/**
+ * Styles for Custom Input Box Everywhere
+ * Last updated: 2025-06-18 12:54:03
+ * Author: Ankitkumar1062
+ */
+
+/* Container */
+.custom-input-box-container {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.custom-input-box-container.cib-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.custom-input-box-container.cib-closing {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Input Box */
+.custom-input-box {
+  font-family: inherit;
+  line-height: 1.5;
+  overflow: auto;
+}
+
+.custom-input-box:focus {
+  outline: none;
+}
+
+/* Formatting Toolbar */
+.formatting-toolbar {
+  background-color: #f5f5f5;
+  flex-wrap: wrap;
+}
+
+.toolbar-btn {
+  transition: background-color 0.2s;
+}
+
+.toolbar-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-btn:active {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Footer */
+.input-box-footer {
+  background-color: #f5f5f5;
+}
+
+/* Drag handle */
+.drag-handle {
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.drag-handle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Status messages in advanced mode */
+.ai-status.info {
+  color: #4285f4;
+}
+
+.ai-status.error {
+  color: #ea4335;
+}
+
+.ai-status.success {
+  color: #0f9d58;
+}
+
+/* Theme: Light (Default) */
+.theme-light {
+  background-color: white;
+  color: #333;
+}
+
+.theme-light .custom-input-box {
+  background-color: white;
+  color: #333;
+}
+
+.theme-light .formatting-toolbar,
+.theme-light .input-box-footer {
+  background-color: #f5f5f5;
+}
+
+/* Theme: Dark */
+.theme-dark {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.theme-dark .custom-input-box {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.theme-dark .formatting-toolbar,
+.theme-dark .input-box-footer {
+  background-color: #1f1f1f;
+  border-color: #3d3d3d;
+}
+
+.theme-dark .toolbar-btn {
+  border-color: #3d3d3d;
+  color: #e0e0e0;
+}
+
+.theme-dark .toolbar-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Theme: High Contrast */
+.theme-high-contrast {
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+}
+
+.theme-high-contrast .custom-input-box {
+  background-color: black;
+  color: white;
+}
+
+.theme-high-contrast .formatting-toolbar,
+.theme-high-contrast .input-box-footer {
+  background-color: black;
+  border-color: white;
+}
+
+.theme-high-contrast .toolbar-btn {
+  border: 2px solid white;
+  color: white;
+  background-color: black;
+}
+
+.theme-high-contrast .toolbar-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+/* Tooltip */
+.cib-tooltip {
+  z-index: 10001;
+  pointer-events: none;
+}
