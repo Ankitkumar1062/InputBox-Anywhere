@@ -1,690 +1,430 @@
 /**
- * Custom Input Box Everywhere
- * Popup script for configuration
+ * Popup script for Custom Input Box Everywhere
+ * Last updated: 2025-06-18 12:54:03
+ * Author: Ankitkumar1062
  */
 
-// Default configuration
-const defaultConfig = {
+// Default settings
+const DEFAULT_SETTINGS = {
   enabled: true,
   mode: 'habit',
   position: 'top',
+  grokApiKey: '',
+  opacity: 0.9,
+  fontSize: 16,
+  width: '80%',
   theme: 'light',
-  llmEndpoint: 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
-  llmModel: 'dummyLLM',
-  apiKey: '',
-  customStyles: {},
-  editorSupport: true,
-  cssModification: false,
-  templates: [],
-  customPosition: {
-    top: '10%',
-    left: '50%',
-    transform: 'translateX(-50%)'
-  },
-  dragEnabled: true,
-  summarizeContent: false
+  alwaysShowToolbar: true,
+  lastPosition: { top: '100px', left: '100px' },
+  lastDimensions: { width: '600px', height: '300px' }
 };
 
-// Global state
-const state = {
-  config: { ...defaultConfig },
-  templates: [],
-  cssRules: [],
-  editingTemplateId: null,
-  saving: false
-};
+// DOM elements
+const enabledToggle = document.getElementById('enabled-toggle');
+const modeRadios = document.querySelectorAll('input[name="mode"]');
+const positionRadios = document.querySelectorAll('input[name="position"]');
+const grokApiKeyInput = document.getElementById('grok-api-key');
+const testApiButton = document.getElementById('test-api');
+const apiStatus = document.getElementById('api-status');
+const opacityInput = document.getElementById('opacity');
+const opacityValue = document.getElementById('opacity-value');
+const fontSizeInput = document.getElementById('font-size');
+const fontSizeValue = document.getElementById('font-size-value');
+const widthSelect = document.getElementById('width');
+const themeSelect = document.getElementById('theme');
+const saveButton = document.getElementById('save-button');
+const resetButton = document.getElementById('reset-button');
+const alwaysShowToolbarCheckbox = document.getElementById('always-show-toolbar');
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', async function() {
-  // Load configuration
-  await loadConfig();
+// Load settings when popup opens
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Popup opened, loading settings...');
   
-  // Load templates
-  await loadTemplates();
+  // Update the version and user info
+  const versionElement = document.querySelector('.version');
+  if (versionElement) {
+    versionElement.textContent = 'v1.0';
+  }
   
-  // Load CSS rules
-  await loadCssRules();
+  const lastUpdatedElement = document.querySelector('.last-updated');
+  if (lastUpdatedElement) {
+    lastUpdatedElement.textContent = 'Last Updated: 2025-06-18 12:54:03';
+  }
   
-  // Set up event listeners
-  setupEventListeners();
+  // Add user info
+  const footerElement = document.querySelector('.footer');
+  if (footerElement) {
+    const existingUserInfo = footerElement.querySelector('.user-info');
+    if (existingUserInfo) {
+      existingUserInfo.remove();
+    }
+    
+    const userElement = document.createElement('span');
+    userElement.className = 'user-info';
+    userElement.textContent = 'User: Ankitkumar1062';
+    footerElement.appendChild(userElement);
+  }
   
-  // Initialize tabs
-  initTabs();
+  // Load current settings from storage
+  browser.storage.local.get('settings')
+    .then(result => {
+      const settings = result.settings || DEFAULT_SETTINGS;
+      console.log('Loaded settings:', settings);
+      
+      // Apply settings to UI
+      enabledToggle.checked = settings.enabled;
+      
+      // Set mode radio buttons
+      for (const radio of modeRadios) {
+        radio.checked = radio.value === settings.mode;
+      }
+      
+      // Set position radio buttons
+      for (const radio of positionRadios) {
+        radio.checked = radio.value === settings.position;
+      }
+      
+      // Set Groq API key
+      grokApiKeyInput.value = settings.grokApiKey || '';
+      
+      // Set appearance settings
+      opacityInput.value = settings.opacity;
+      opacityValue.textContent = settings.opacity;
+      
+      fontSizeInput.value = settings.fontSize;
+      fontSizeValue.textContent = `${settings.fontSize}px`;
+      
+      widthSelect.value = settings.width;
+      themeSelect.value = settings.theme;
+      
+      // Set always show toolbar checkbox
+      if (alwaysShowToolbarCheckbox) {
+        alwaysShowToolbarCheckbox.checked = settings.alwaysShowToolbar;
+      }
+      
+      // Toggle advanced settings visibility based on mode
+      toggleAdvancedSettings(settings.mode === 'advanced');
+    })
+    .catch(error => {
+      console.error('Error loading settings:', error);
+      showStatusNotification('Error loading settings', 'error');
+    });
+    
+  // Expand keyboard shortcuts section
+  const shortcutsList = document.querySelector('.shortcut-list');
+  if (shortcutsList) {
+    // Add additional keyboard shortcuts if they don't exist
+    if (shortcutsList.children.length <= 6) {
+      const newShortcuts = [
+        { keys: 'Alt+Arrow Keys', desc: 'Resize box (float mode)' },
+        { keys: 'Ctrl+Shift+Arrow Keys', desc: 'Move box (float mode)' },
+        { keys: 'Alt+Shift+Arrow Keys', desc: 'Resize by larger steps' },
+        { keys: 'Ctrl+Shift+Q', desc: 'Close input box' },
+        { keys: 'Ctrl+Shift+R', desc: 'Reset position (float mode)' },
+        { keys: 'Ctrl+Shift+T', desc: 'Toggle formatting toolbar' }
+      ];
+      
+      newShortcuts.forEach(shortcut => {
+        const shortcutItem = document.createElement('div');
+        shortcutItem.className = 'shortcut-item';
+        
+        const keysSpan = document.createElement('span');
+        keysSpan.className = 'shortcut-keys';
+        keysSpan.textContent = shortcut.keys;
+        
+        const descSpan = document.createElement('span');
+        descSpan.className = 'shortcut-desc';
+        descSpan.textContent = shortcut.desc;
+        
+        shortcutItem.appendChild(keysSpan);
+        shortcutItem.appendChild(descSpan);
+        shortcutsList.appendChild(shortcutItem);
+      });
+    }
+  }
   
-  // Update UI based on loaded configuration
-  updateUI();
-  
-  console.log('Popup initialized');
+  // Initialize collapsible sections
+  initializeCollapsibles();
 });
 
-// Load configuration from storage
-async function loadConfig() {
-  try {
-    const result = await browser.storage.sync.get('inputBoxConfig');
-    if (result.inputBoxConfig) {
-      state.config = { ...defaultConfig, ...result.inputBoxConfig };
-      console.log('Loaded configuration:', state.config);
-    } else {
-      state.config = { ...defaultConfig };
-      console.log('Using default configuration');
-    }
-  } catch (error) {
-    console.error('Error loading configuration:', error);
-    state.config = { ...defaultConfig };
-  }
-}
-
-// Load templates from storage
-async function loadTemplates() {
-  try {
-    const result = await browser.storage.sync.get('inputBoxTemplates');
-    if (result.inputBoxTemplates) {
-      state.templates = result.inputBoxTemplates;
-      console.log('Loaded templates:', state.templates.length);
-    } else {
-      state.templates = [];
-      console.log('No templates found');
-    }
-    
-    // Update the templates list
-    updateTemplatesList();
-  } catch (error) {
-    console.error('Error loading templates:', error);
-    state.templates = [];
-  }
-}
-
-// Load CSS rules from storage
-async function loadCssRules() {
-  try {
-    const result = await browser.storage.sync.get('cssRules');
-    if (result.cssRules) {
-      state.cssRules = result.cssRules;
-      console.log('Loaded CSS rules:', state.cssRules.length);
-    } else {
-      state.cssRules = [];
-      console.log('No CSS rules found');
-    }
-    
-    // Update the CSS rules list
-    updateCssRulesList();
-  } catch (error) {
-    console.error('Error loading CSS rules:', error);
-    state.cssRules = [];
-  }
-}
-
-// Update the UI based on the current configuration
-function updateUI() {
-  // Extension toggle
-  document.getElementById('extension-toggle').checked = state.config.enabled;
+// Add immediate toggle functionality to the enable/disable switch
+enabledToggle.addEventListener('change', () => {
+  console.log(`Toggle changed to: ${enabledToggle.checked}`);
   
-  // Mode radios
-  document.querySelector(`input[name="mode"][value="${state.config.mode}"]`).checked = true;
-  
-  // Position radios
-  document.querySelector(`input[name="position"][value="${state.config.position}"]`).checked = true;
-  
-  // Theme radios
-  document.querySelector(`input[name="theme"][value="${state.config.theme}"]`).checked = true;
-  
-  // Advanced settings
-  document.getElementById('editor-support-toggle').checked = state.config.editorSupport;
-  document.getElementById('css-modification-toggle').checked = state.config.cssModification;
-  document.getElementById('summarize-content-toggle').checked = state.config.summarizeContent;
-  document.getElementById('drag-enabled-toggle').checked = state.config.dragEnabled;
-  
-  // LLM settings
-  document.getElementById('llm-model').value = state.config.llmModel || 'dummyLLM';
-  document.getElementById('api-key').value = state.config.apiKey || '';
-}
-
-// Set up event listeners
-function setupEventListeners() {
-  // Save buttons
-  document.getElementById('save-basic').addEventListener('click', saveBasicSettings);
-  document.getElementById('save-advanced').addEventListener('click', saveAdvancedSettings);
-  
-  // Close button
-  document.getElementById('close-popup').addEventListener('click', closePopup);
-  
-  // Template management
-  document.getElementById('add-template').addEventListener('click', showTemplateForm);
-  document.getElementById('save-template').addEventListener('click', saveTemplate);
-  document.getElementById('cancel-template').addEventListener('click', hideTemplateForm);
-  
-  // Template generation
-  document.getElementById('generate-template').addEventListener('click', showGenerateTemplateForm);
-  document.getElementById('confirm-generate-template').addEventListener('click', generateTemplate);
-  document.getElementById('cancel-generate-template').addEventListener('click', hideGenerateTemplateForm);
-  
-  // CSS rule generation
-  document.getElementById('generate-css-rules').addEventListener('click', showGenerateCssForm);
-  document.getElementById('confirm-generate-css').addEventListener('click', generateCssRules);
-  document.getElementById('cancel-generate-css').addEventListener('click', hideGenerateCssForm);
-  
-  // LLM connection test
-  document.getElementById('test-llm-connection').addEventListener('click', testLLMConnection);
-}
-
-// Initialize tabs
-function initTabs() {
-  const tabButtons = document.querySelectorAll('.tab-button');
-  const tabPanes = document.querySelectorAll('.tab-pane');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      // Get the tab id
-      const tabId = button.getAttribute('data-tab');
+  // Immediately send the updated setting to storage
+  browser.storage.local.get('settings')
+    .then(result => {
+      const settings = result.settings || DEFAULT_SETTINGS;
+      settings.enabled = enabledToggle.checked;
       
-      // Remove active class from all buttons and panes
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      tabPanes.forEach(pane => pane.classList.remove('active'));
-      
-      // Add active class to selected button and pane
-      button.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
-    });
-  });
-}
-
-// Save basic settings
-async function saveBasicSettings() {
-  if (state.saving) return;
-  state.saving = true;
-  
-  try {
-    // Update config from UI
-    state.config.enabled = document.getElementById('extension-toggle').checked;
-    state.config.mode = document.querySelector('input[name="mode"]:checked').value;
-    state.config.position = document.querySelector('input[name="position"]:checked').value;
-    state.config.theme = document.querySelector('input[name="theme"]:checked').value;
-    
-    // Save to storage
-    await browser.storage.sync.set({ inputBoxConfig: state.config });
-    
-    // Notify the background script
-    await browser.runtime.sendMessage({
-      action: 'updateConfig',
-      config: state.config
-    });
-    
-    showSaveSuccess('save-basic');
-    console.log('Basic settings saved');
-  } catch (error) {
-    console.error('Error saving basic settings:', error);
-    alert('Error saving settings. Please try again.');
-  } finally {
-    state.saving = false;
-  }
-}
-
-// Save advanced settings
-async function saveAdvancedSettings() {
-  if (state.saving) return;
-  state.saving = true;
-  
-  try {
-    // Update config from UI
-    state.config.editorSupport = document.getElementById('editor-support-toggle').checked;
-    state.config.cssModification = document.getElementById('css-modification-toggle').checked;
-    state.config.summarizeContent = document.getElementById('summarize-content-toggle').checked;
-    state.config.dragEnabled = document.getElementById('drag-enabled-toggle').checked;
-    state.config.llmModel = document.getElementById('llm-model').value;
-    state.config.apiKey = document.getElementById('api-key').value;
-    
-    // Update endpoint based on model
-    if (state.config.llmModel === 'mistral') {
-      state.config.llmEndpoint = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2';
-    } else if (state.config.llmModel === 'phi3') {
-      state.config.llmEndpoint = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
-    }
-    
-    // Save to storage
-    await browser.storage.sync.set({ inputBoxConfig: state.config });
-    
-    // Notify the background script
-    await browser.runtime.sendMessage({
-      action: 'updateConfig',
-      config: state.config
-    });
-    
-    showSaveSuccess('save-advanced');
-    console.log('Advanced settings saved');
-  } catch (error) {
-    console.error('Error saving advanced settings:', error);
-    alert('Error saving settings. Please try again.');
-  } finally {
-    state.saving = false;
-  }
-}
-
-// Show save success feedback
-function showSaveSuccess(buttonId) {
-  const button = document.getElementById(buttonId);
-  const originalText = button.textContent;
-  
-  button.textContent = 'Saved!';
-  button.classList.add('success');
-  
-  setTimeout(() => {
-    button.textContent = originalText;
-    button.classList.remove('success');
-  }, 1500);
-}
-
-// Close popup
-function closePopup() {
-  window.close();
-}
-
-// Update the templates list in the UI
-function updateTemplatesList() {
-  const templatesList = document.getElementById('templates-list');
-  templatesList.innerHTML = '';
-  
-  if (state.templates.length === 0) {
-    templatesList.innerHTML = '<div class="template-item"><span colspan="3">No templates available. Add your first template!</span></div>';
-    return;
-  }
-  
-  state.templates.forEach((template, index) => {
-    const templateItem = document.createElement('div');
-    templateItem.className = 'template-item';
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'template-name';
-    nameSpan.textContent = template.name;
-    
-    const contentSpan = document.createElement('span');
-    contentSpan.className = 'template-content';
-    contentSpan.textContent = template.content;
-    contentSpan.title = template.content;
-    
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'template-actions';
-    
-    const editButton = document.createElement('button');
-    editButton.className = 'template-edit';
-    editButton.textContent = '✎';
-    editButton.title = 'Edit template';
-    editButton.addEventListener('click', () => editTemplate(template.id));
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'template-delete';
-    deleteButton.textContent = '×';
-    deleteButton.title = 'Delete template';
-    deleteButton.addEventListener('click', () => deleteTemplate(template.id));
-    
-    actionsDiv.appendChild(editButton);
-    actionsDiv.appendChild(deleteButton);
-    
-    templateItem.appendChild(nameSpan);
-    templateItem.appendChild(contentSpan);
-    templateItem.appendChild(actionsDiv);
-    
-    templatesList.appendChild(templateItem);
-  });
-}
-
-// Update the CSS rules list in the UI
-function updateCssRulesList() {
-  const cssRulesList = document.getElementById('css-rules-list');
-  cssRulesList.innerHTML = '';
-  
-  if (state.cssRules.length === 0) {
-    cssRulesList.innerHTML = '<div class="css-rule-item"><span colspan="3">No CSS rules available. Generate rules to customize page appearance.</span></div>';
-    return;
-  }
-  
-  state.cssRules.forEach((rule, index) => {
-    const ruleItem = document.createElement('div');
-    ruleItem.className = 'css-rule-item';
-    
-    const selectorSpan = document.createElement('span');
-    selectorSpan.className = 'css-selector';
-    selectorSpan.textContent = rule.selector;
-    selectorSpan.title = rule.selector;
-    
-    const propertiesSpan = document.createElement('span');
-    propertiesSpan.className = 'css-properties';
-    const propertiesText = Object.entries(rule.styles)
-      .map(([prop, value]) => `${prop}: ${value}`)
-      .join('; ');
-    propertiesSpan.textContent = propertiesText;
-    propertiesSpan.title = propertiesText;
-    
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'css-rule-actions';
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = '×';
-    deleteButton.title = 'Delete rule';
-    deleteButton.addEventListener('click', () => deleteCssRule(index));
-    
-    actionsDiv.appendChild(deleteButton);
-    
-    ruleItem.appendChild(selectorSpan);
-    ruleItem.appendChild(propertiesSpan);
-    ruleItem.appendChild(actionsDiv);
-    
-    cssRulesList.appendChild(ruleItem);
-  });
-}
-
-// Show the template form for adding/editing
-function showTemplateForm() {
-  // Reset form
-  document.getElementById('template-id').value = '';
-  document.getElementById('template-name').value = '';
-  document.getElementById('template-content').value = '';
-  state.editingTemplateId = null;
-  
-  // Show form
-  document.getElementById('template-form').style.display = 'block';
-  document.getElementById('template-name').focus();
-}
-
-// Hide the template form
-function hideTemplateForm() {
-  document.getElementById('template-form').style.display = 'none';
-}
-
-// Save a template
-async function saveTemplate() {
-  const nameInput = document.getElementById('template-name');
-  const contentInput = document.getElementById('template-content');
-  const idInput = document.getElementById('template-id');
-  
-  const name = nameInput.value.trim();
-  const content = contentInput.value;
-  const id = idInput.value || `template-${Date.now()}`;
-  
-  if (!name) {
-    alert('Please enter a template name');
-    nameInput.focus();
-    return;
-  }
-  
-  if (!content) {
-    alert('Please enter template content');
-    contentInput.focus();
-    return;
-  }
-  
-  try {
-    // Check if we're editing or adding
-    if (state.editingTemplateId) {
-      // Update existing template
-      const index = state.templates.findIndex(t => t.id === state.editingTemplateId);
-      if (index !== -1) {
-        state.templates[index] = { id, name, content };
+      return browser.storage.local.set({ settings });
+    })
+    .then(() => {
+      // Try to notify background about the change
+      try {
+        browser.runtime.sendMessage({
+          type: 'TOGGLE_EXTENSION',
+          enabled: enabledToggle.checked
+        });
+      } catch (error) {
+        console.warn('Could not notify background script, but setting was saved:', error);
       }
-    } else {
-      // Add new template
-      state.templates.push({ id, name, content });
-    }
-    
-    // Save to storage
-    await browser.storage.sync.set({ inputBoxTemplates: state.templates });
-    
-    // Notify background script
-    await browser.runtime.sendMessage({
-      action: 'saveTemplates',
-      templates: state.templates
-    });
-    
-    // Update UI
-    updateTemplatesList();
-    hideTemplateForm();
-    
-    console.log('Template saved:', name);
-  } catch (error) {
-    console.error('Error saving template:', error);
-    alert('Error saving template. Please try again.');
-  }
-}
-
-// Edit a template
-function editTemplate(id) {
-  const template = state.templates.find(t => t.id === id);
-  if (!template) {
-    console.error('Template not found:', id);
-    return;
-  }
-  
-  // Set form values
-  document.getElementById('template-id').value = template.id;
-  document.getElementById('template-name').value = template.name;
-  document.getElementById('template-content').value = template.content;
-  
-  // Set editing state
-  state.editingTemplateId = template.id;
-  
-  // Show form
-  document.getElementById('template-form').style.display = 'block';
-  document.getElementById('template-name').focus();
-}
-
-// Delete a template
-async function deleteTemplate(id) {
-  if (!confirm('Are you sure you want to delete this template?')) {
-    return;
-  }
-  
-  try {
-    // Remove template
-    state.templates = state.templates.filter(t => t.id !== id);
-    
-    // Save to storage
-    await browser.storage.sync.set({ inputBoxTemplates: state.templates });
-    
-    // Notify background script
-    await browser.runtime.sendMessage({
-      action: 'saveTemplates',
-      templates: state.templates
-    });
-    
-    // Update UI
-    updateTemplatesList();
-    
-    console.log('Template deleted:', id);
-  } catch (error) {
-    console.error('Error deleting template:', error);
-    alert('Error deleting template. Please try again.');
-  }
-}
-
-// Show the generate template form
-function showGenerateTemplateForm() {
-  document.getElementById('template-description').value = '';
-  document.getElementById('generate-template-form').style.display = 'block';
-  document.getElementById('template-description').focus();
-}
-
-// Hide the generate template form
-function hideGenerateTemplateForm() {
-  document.getElementById('generate-template-form').style.display = 'none';
-}
-
-// Generate a template using LLM
-async function generateTemplate() {
-  const description = document.getElementById('template-description').value.trim();
-  
-  if (!description) {
-    alert('Please enter a description of the template you need');
-    document.getElementById('template-description').focus();
-    return;
-  }
-  
-  try {
-    // Show loading state
-    const button = document.getElementById('confirm-generate-template');
-    const originalText = button.textContent;
-    button.textContent = 'Generating...';
-    button.disabled = true;
-    
-    // Request template from background script
-    const response = await browser.runtime.sendMessage({
-      action: 'generateTemplate',
-      prompt: `Create a template for: ${description}. Make it concise but useful.`,
-      model: state.config.llmModel
-    });
-    
-    // Reset button
-    button.textContent = originalText;
-    button.disabled = false;
-    
-    if (response && response.template) {
-      // Fill the template form with generated content
-      document.getElementById('template-id').value = '';
-      document.getElementById('template-name').value = description.substring(0, 30);
-      document.getElementById('template-content').value = response.template;
       
-      // Hide generate form and show template form
-      hideGenerateTemplateForm();
-      document.getElementById('template-form').style.display = 'block';
-    } else {
-      alert('Could not generate template. Please try again or use a different description.');
-    }
-  } catch (error) {
-    console.error('Error generating template:', error);
-    alert('Error generating template. Please try again.');
-    
-    // Reset button
-    const button = document.getElementById('confirm-generate-template');
-    button.textContent = 'Generate';
-    button.disabled = false;
-  }
-}
-
-// Show the generate CSS form
-function showGenerateCssForm() {
-  document.getElementById('css-description').value = '';
-  document.getElementById('generate-css-form').style.display = 'block';
-  document.getElementById('css-description').focus();
-}
-
-// Hide the generate CSS form
-function hideGenerateCssForm() {
-  document.getElementById('generate-css-form').style.display = 'none';
-}
-
-// Generate CSS rules using LLM
-async function generateCssRules() {
-  const description = document.getElementById('css-description').value.trim();
-  
-  if (!description) {
-    alert('Please enter a description of the CSS changes you need');
-    document.getElementById('css-description').focus();
-    return;
-  }
-  
-  try {
-    // Show loading state
-    const button = document.getElementById('confirm-generate-css');
-    const originalText = button.textContent;
-    button.textContent = 'Generating...';
-    button.disabled = true;
-    
-    // Request CSS rules from background script
-    const response = await browser.runtime.sendMessage({
-      action: 'generateCssRules',
-      prompt: `Generate CSS rules based on this description: "${description}"`,
-      model: state.config.llmModel
+      // Show visual confirmation
+      const statusMsg = enabledToggle.checked ? 'Extension enabled' : 'Extension disabled';
+      showStatusNotification(statusMsg, enabledToggle.checked ? 'success' : 'info');
+    })
+    .catch(error => {
+      console.error('Error toggling extension:', error);
+      showStatusNotification('Error toggling extension', 'error');
     });
-    
-    // Reset button
-    button.textContent = originalText;
-    button.disabled = false;
-    
-    if (response && response.rules && Array.isArray(response.rules)) {
-      // Save the generated rules
-      state.cssRules = [...state.cssRules, ...response.rules];
+});
+
+// Save settings
+saveButton.addEventListener('click', () => {
+  console.log('Saving settings...');
+  
+  // Show saving indicator
+  saveButton.textContent = 'Saving...';
+  saveButton.disabled = true;
+  
+  // Collect settings from UI
+  browser.storage.local.get('settings')
+    .then(result => {
+      const currentSettings = result.settings || DEFAULT_SETTINGS;
+      
+      const newSettings = {
+        enabled: enabledToggle.checked,
+        mode: getSelectedRadioValue(modeRadios),
+        position: getSelectedRadioValue(positionRadios),
+        grokApiKey: grokApiKeyInput.value.trim(),
+        opacity: parseFloat(opacityInput.value),
+        fontSize: parseInt(fontSizeInput.value),
+        width: widthSelect.value,
+        theme: themeSelect.value,
+        alwaysShowToolbar: alwaysShowToolbarCheckbox ? alwaysShowToolbarCheckbox.checked : true,
+        lastPosition: currentSettings.lastPosition || { top: '100px', left: '100px' },
+        lastDimensions: currentSettings.lastDimensions || { width: '600px', height: '300px' }
+      };
       
       // Save to storage
-      await browser.storage.sync.set({ cssRules: state.cssRules });
+      return browser.storage.local.set({ settings: newSettings })
+        .then(() => newSettings);
+    })
+    .then(newSettings => {
+      // Try to notify background script about the settings change
+      try {
+        browser.runtime.sendMessage({
+          type: 'UPDATE_SETTINGS',
+          settings: newSettings
+        });
+      } catch (error) {
+        console.warn('Could not notify background script, but settings were saved:', error);
+      }
       
-      // Notify background script
-      await browser.runtime.sendMessage({
-        action: 'saveCssRules',
-        rules: state.cssRules
-      });
-      
-      // Update UI
-      updateCssRulesList();
-      hideGenerateCssForm();
-      
-      // Show success message
-      alert(`${response.rules.length} CSS rules generated and saved.`);
-    } else {
-      alert('Could not generate CSS rules. Please try again or use a different description.');
-    }
-  } catch (error) {
-    console.error('Error generating CSS rules:', error);
-    alert('Error generating CSS rules. Please try again.');
-    
-    // Reset button
-    const button = document.getElementById('confirm-generate-css');
-    button.textContent = 'Generate';
-    button.disabled = false;
-  }
-}
+      // Reset button text and show success notification
+      saveButton.textContent = 'Save Settings';
+      saveButton.disabled = false;
+      showStatusNotification('Settings saved successfully', 'success');
+    })
+    .catch(error => {
+      console.error('Error saving settings:', error);
+      saveButton.textContent = 'Save Settings';
+      saveButton.disabled = false;
+      showStatusNotification('Error saving settings', 'error');
+    });
+});
 
-// Delete a CSS rule
-async function deleteCssRule(index) {
-  if (!confirm('Are you sure you want to delete this CSS rule?')) {
+// Reset settings to defaults
+resetButton.addEventListener('click', () => {
+  if (confirm('Reset all settings to defaults? This cannot be undone.')) {
+    resetButton.textContent = 'Resetting...';
+    resetButton.disabled = true;
+    
+    browser.storage.local.set({ settings: DEFAULT_SETTINGS })
+      .then(() => {
+        // Try to notify background about the reset
+        try {
+          browser.runtime.sendMessage({
+            type: 'UPDATE_SETTINGS',
+            settings: DEFAULT_SETTINGS
+          });
+        } catch (error) {
+          console.warn('Could not notify background script, but settings were reset:', error);
+        }
+        
+        // Reload the popup to show default settings
+        showStatusNotification('Settings reset to defaults', 'info');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      })
+      .catch(error => {
+        console.error('Error resetting settings:', error);
+        resetButton.textContent = 'Reset to Defaults';
+        resetButton.disabled = false;
+        showStatusNotification('Error resetting settings', 'error');
+      });
+  }
+});
+
+// Test Groq API connection with simplified approach
+testApiButton.addEventListener('click', () => {
+  const apiKey = grokApiKeyInput.value.trim();
+  
+  if (!apiKey) {
+    showApiStatus('Please enter an API key', false);
     return;
   }
   
-  try {
-    // Remove rule
-    state.cssRules.splice(index, 1);
-    
-    // Save to storage
-    await browser.storage.sync.set({ cssRules: state.cssRules });
-    
-    // Notify background script
-    await browser.runtime.sendMessage({
-      action: 'saveCssRules',
-      rules: state.cssRules
+  // Clear any previous status
+  apiStatus.textContent = '';
+  apiStatus.className = '';
+  apiStatus.style.display = 'none';
+  
+  // Update button state
+  testApiButton.textContent = 'Testing...';
+  testApiButton.disabled = true;
+  
+  // Show testing message
+  showStatusNotification('Testing API connection...', 'info');
+  
+  // Simple approach - just try to send the message and handle errors
+  browser.runtime.sendMessage({
+    type: 'DIRECT_GROQ_TEST',
+    apiKey: apiKey
+  })
+    .then(response => {
+      console.log('API test response:', response);
+      
+      if (response && response.success) {
+        showApiStatus('Connection successful!', true);
+        showStatusNotification('API connection successful', 'success');
+        
+        // Save the successful API key
+        browser.storage.local.get('settings')
+          .then(result => {
+            const settings = result.settings || DEFAULT_SETTINGS;
+            settings.grokApiKey = apiKey;
+            return browser.storage.local.set({ settings });
+          })
+          .catch(error => {
+            console.warn('Could not save API key to settings:', error);
+          });
+      } else {
+        const errorMsg = response?.error || 'Unknown error';
+        showApiStatus(`Connection failed: ${errorMsg}`, false);
+        showStatusNotification('API connection failed', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('API test error:', error);
+      
+      // Special handling for the "receiving end does not exist" error
+      if (error.message && error.message.includes("Receiving end does not exist")) {
+        showApiStatus("Background script connection error. Please reload the extension from about:debugging page.", false);
+      } else {
+        showApiStatus(`Error: ${error.message}`, false);
+      }
+      
+      showStatusNotification('API connection error', 'error');
+    })
+    .finally(() => {
+      // Reset button
+      testApiButton.textContent = 'Test Connection';
+      testApiButton.disabled = false;
     });
-    
-    // Update UI
-    updateCssRulesList();
-    
-    console.log('CSS rule deleted at index:', index);
-  } catch (error) {
-    console.error('Error deleting CSS rule:', error);
-    alert('Error deleting CSS rule. Please try again.');
-  }
+});
+
+// Toggle advanced settings visibility when mode changes
+for (const radio of modeRadios) {
+  radio.addEventListener('change', (e) => {
+    toggleAdvancedSettings(e.target.value === 'advanced');
+  });
 }
 
-// Test LLM connection
-function testLLMConnection() {
-  const resultElement = document.getElementById('llm-test-result');
-  const apiKey = document.getElementById('api-key').value;
-  const model = document.getElementById('llm-model').value;
+// Update opacity value display
+opacityInput.addEventListener('input', () => {
+  opacityValue.textContent = opacityInput.value;
+});
+
+// Update font size value display
+fontSizeInput.addEventListener('input', () => {
+  fontSizeValue.textContent = `${fontSizeInput.value}px`;
+});
+
+// Initialize collapsible sections
+function initializeCollapsibles() {
+  const collapsibles = document.querySelectorAll('.collapsible');
   
-  // Show loading state
-  resultElement.innerHTML = '<div class="loading-spinner"></div> Testing connection...';
-  resultElement.className = 'test-result';
-  
-  // Send test request to background script
-  browser.runtime.sendMessage({
-    action: 'testLLMConnection',
-    model: model,
-    apiKey: apiKey
-  }).then(result => {
-    if (result.success) {
-      resultElement.innerHTML = `<span class="success-icon">✓</span> Connection successful!`;
-      resultElement.className = 'test-result success';
-    } else {
-      resultElement.innerHTML = `<span class="error-icon">✗</span> Connection failed: ${result.error || result.statusText || 'Unknown error'}`;
-      resultElement.className = 'test-result error';
+  collapsibles.forEach(collapsible => {
+    const content = collapsible.nextElementSibling;
+    
+    // If has 'expanded' class, expand it
+    if (content.classList.contains('expanded')) {
+      content.style.maxHeight = content.scrollHeight + 'px';
     }
-  }).catch(error => {
-    resultElement.innerHTML = `<span class="error-icon">✗</span> Test error: ${error.message}`;
-    resultElement.className = 'test-result error';
+    
+    collapsible.addEventListener('click', () => {
+      collapsible.classList.toggle('collapsed');
+      content.classList.toggle('expanded');
+      
+      if (content.classList.contains('expanded')) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+      } else {
+        content.style.maxHeight = '0';
+      }
+    });
   });
+}
+
+// Helper function to get selected radio button value
+function getSelectedRadioValue(radioButtons) {
+  for (const radio of radioButtons) {
+    if (radio.checked) {
+      return radio.value;
+    }
+  }
+  return null;
+}
+
+// Helper function to show API connection status
+function showApiStatus(message, isSuccess) {
+  apiStatus.textContent = message;
+  apiStatus.className = isSuccess ? 'success' : 'error';
+  apiStatus.style.display = 'block';
+  
+  // Hide after 5 seconds
+  setTimeout(() => {
+    apiStatus.style.display = 'none';
+  }, 5000);
+}
+
+// Helper function to show general status notification
+function showStatusNotification(message, type) {
+  // Create notification if it doesn't exist
+  let notification = document.querySelector('.status-notification');
+  if (!notification) {
+    notification = document.createElement('div');
+    notification.className = 'status-notification';
+    document.querySelector('.container').appendChild(notification);
+  }
+  
+  // Update notification
+  notification.textContent = message;
+  notification.className = `status-notification ${type}`;
+  notification.style.display = 'block';
+  
+  // Hide after 3 seconds
+  setTimeout(() => {
+    notification.style.display = 'none';
+  }, 3000);
+}
+
+// Helper function to toggle advanced settings visibility
+function toggleAdvancedSettings(show) {
+  const advancedSection = document.querySelector('.advanced-settings');
+  if (advancedSection) {
+    advancedSection.style.display = show ? 'block' : 'none';
+  }
 }
