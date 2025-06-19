@@ -1,333 +1,436 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Custom Input Box Settings</title>
-  <link rel="stylesheet" href="popup.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      margin: 0;
+      padding: 16px;
+      width: 320px;
+      color: #333;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0;
+    }
+    
+    .version {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .section {
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0 0 8px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    
+    .inline-label {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .inline-label input {
+      margin-right: 4px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+    }
+    
+    .toggle-switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 22px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #4285f4;
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(22px);
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+    }
+    
+    .range-value {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .button-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    #save-button {
+      background-color: #4285f4;
+      color: white;
+    }
+    
+    #save-button:hover {
+      background-color: #2b71e6;
+    }
+    
+    #reset-button {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+    
+    #reset-button:hover {
+      background-color: #e4e4e4;
+    }
+    
+    #test-api {
+      background-color: #f1f1f1;
+      color: #333;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+    
+    #test-api:hover {
+      background-color: #e4e4e4;
+    }
+    
+    #api-status {
+      display: none;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    #api-status.success {
+      background-color: #e6f4ea;
+      color: #0f9d58;
+    }
+    
+    #api-status.error {
+      background-color: #fce8e6;
+      color: #ea4335;
+    }
+    
+    .collapsible {
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .collapsible::after {
+      content: "▼";
+      font-size: 10px;
+      color: #888;
+    }
+    
+    .collapsible.collapsed::after {
+      content: "►";
+    }
+    
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    
+    .collapsible-content.expanded {
+      max-height: 500px;
+    }
+    
+    .shortcut-list {
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+    }
+    
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px dotted #eee;
+    }
+    
+    .shortcut-keys {
+      font-weight: 500;
+      margin-right: 8px;
+    }
+    
+    .shortcut-desc {
+      color: #666;
+    }
+    
+    .footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .advanced-settings {
+      display: none;
+    }
+    
+    .status-notification {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000;
+    }
+    
+    .status-notification.success {
+      background-color: #e6f4ea;
+      color: #0f9d58;
+    }
+    
+    .status-notification.error {
+      background-color: #fce8e6;
+      color: #ea4335;
+    }
+    
+    .status-notification.info {
+      background-color: #e8f0fe;
+      color: #4285f4;
+    }
+    
+    .toggle-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
-  <div class="popup-container">
-    <header>
-      <h1>Custom Input Box Everywhere</h1>
-      <p>Configure your eye-level input experience</p>
-    </header>
-    
-    <div class="tabs">
-      <button class="tab-button active" data-tab="basic">Basic</button>
-      <button class="tab-button" data-tab="advanced">Advanced</button>
-      <button class="tab-button" data-tab="templates">Templates</button>
-      <button class="tab-button" data-tab="about">About</button>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">Custom Input Box</h1>
+      <span class="version">v1.0</span>
     </div>
     
-    <div class="tab-content">
-      <!-- Basic Settings Tab -->
-      <div id="basic" class="tab-pane active">
-        <section>
-          <h2>Enable/Disable</h2>
-          <div class="toggle-container">
-            <label class="toggle">
-              <input type="checkbox" id="extension-toggle" checked>
-              <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Enable Custom Input Box</span>
-          </div>
-        </section>
-        
-        <section>
-          <h2>Mode</h2>
-          <div class="radio-group">
-            <label class="radio">
-              <input type="radio" name="mode" value="habit" checked>
-              <span class="radio-custom"></span>
-              <span class="radio-label">Habit Mode</span>
-            </label>
-            <p class="hint">Minimal interface, syncs with focused input fields</p>
-            
-            <label class="radio">
-              <input type="radio" name="mode" value="advanced">
-              <span class="radio-custom"></span>
-              <span class="radio-label">Advanced Mode</span>
-            </label>
-            <p class="hint">Added features: LLM suggestions, CSS modification, content summarization</p>
-          </div>
-        </section>
-        
-        <section>
-          <h2>Position</h2>
-          <div class="radio-group">
-            <label class="radio">
-              <input type="radio" name="position" value="top" checked>
-              <span class="radio-custom"></span>
-              <span class="radio-label">Top</span>
-            </label>
-            
-            <label class="radio">
-              <input type="radio" name="position" value="center">
-              <span class="radio-custom"></span>
-              <span class="radio-label">Center</span>
-            </label>
-            
-            <label class="radio">
-              <input type="radio" name="position" value="floating">
-              <span class="radio-custom"></span>
-              <span class="radio-label">Floating</span>
-            </label>
-            
-            <label class="radio">
-              <input type="radio" name="position" value="custom">
-              <span class="radio-custom"></span>
-              <span class="radio-label">Custom</span>
-            </label>
-            <p class="hint">Use the drag handle to position manually</p>
-          </div>
-        </section>
-        
-        <section>
-          <h2>Theme</h2>
-          <div class="radio-group">
-            <label class="radio">
-              <input type="radio" name="theme" value="light" checked>
-              <span class="radio-custom"></span>
-              <span class="radio-label">Light</span>
-            </label>
-            
-            <label class="radio">
-              <input type="radio" name="theme" value="dark">
-              <span class="radio-custom"></span>
-              <span class="radio-label">Dark</span>
-            </label>
-            
-            <label class="radio">
-              <input type="radio" name="theme" value="minimal">
-              <span class="radio-custom"></span>
-              <span class="radio-label">Minimal</span>
-            </label>
-            
-            <label class="radio">
-              <input type="radio" name="theme" value="system">
-              <span class="radio-custom"></span>
-              <span class="radio-label">System (follow OS setting)</span>
-            </label>
-          </div>
-        </section>
-        
-        <section>
-          <h2>Keyboard Shortcuts</h2>
-          <div class="shortcut-info">
-            <div class="shortcut-row">
-              <span class="shortcut-keys">Alt+Shift+I</span>
-              <span class="shortcut-desc">Toggle extension on/off</span>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-keys">Alt+Shift+M</span>
-              <span class="shortcut-desc">Toggle between Habit/Advanced modes</span>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-keys">Alt+1, Alt+2, ...</span>
-              <span class="shortcut-desc">Insert templates 1-9</span>
-            </div>
-          </div>
-        </section>
-        
-        <button id="save-basic" class="primary-button">Save Settings</button>
-      </div>
-      
-      <!-- Advanced Settings Tab -->
-      <div id="advanced" class="tab-pane">
-        <section>
-          <h2>Advanced Features</h2>
-          <div class="toggle-container">
-            <label class="toggle">
-              <input type="checkbox" id="editor-support-toggle" checked>
-              <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Editor Support</span>
-            <p class="hint">Enable specialized support for rich text editors and code editors</p>
-          </div>
-          
-          <div class="toggle-container">
-            <label class="toggle">
-              <input type="checkbox" id="css-modification-toggle">
-              <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">CSS Modification</span>
-            <p class="hint">Modify webpage CSS to improve input field positions (Advanced Mode only)</p>
-          </div>
-          
-          <div class="toggle-container">
-            <label class="toggle">
-              <input type="checkbox" id="summarize-content-toggle">
-              <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Auto-summarize Long Content</span>
-            <p class="hint">Automatically generate summaries for long text fields (Advanced Mode only)</p>
-          </div>
-          
-          <div class="toggle-container">
-            <label class="toggle">
-              <input type="checkbox" id="drag-enabled-toggle" checked>
-              <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Draggable Position</span>
-            <p class="hint">Allow dragging to reposition the input box</p>
-          </div>
-        </section>
-        
-        <section>
-          <h2>LLM Settings</h2>
-          <div class="input-group">
-            <label for="llm-model">LLM Model</label>
-            <select id="llm-model">
-              <option value="dummyLLM">Simple Generator (No API Required)</option>
-              <option value="mistral">Mistral 7B (Free, Requires API Key)</option>
-              <option value="phi3">Phi-3 Mini (Free, Requires API Key)</option>
-            </select>
-            <p class="hint">Mistral provides better quality for CSS modifications and summarization</p>
-          </div>
-          
-          <div class="input-group">
-            <label for="api-key">Hugging Face API Key</label>
-            <input type="text" id="api-key" placeholder="Enter your Hugging Face API key">
-            <p class="hint"><strong>Free:</strong> Get your key from <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a></p>
-          </div>
-          
-          <div class="api-key-instructions">
-            <div class="info-box">
-              <h3>How to Get Your Free API Key</h3>
-              <ol>
-                <li>Sign up for a free account at <a href="https://huggingface.co/join" target="_blank">huggingface.co</a></li>
-                <li>Go to <a href="https://huggingface.co/settings/tokens" target="_blank">Settings > Access Tokens</a></li>
-                <li>Click "New token", name it "CustomInputBox" and select "Read" role</li>
-                <li>Copy the generated token and paste it above</li>
-              </ol>
-              <p><strong>Note:</strong> The free tier has generous limits for personal use. No credit card required.</p>
-            </div>
-          </div>
-          
-          <div class="input-group">
-            <button id="test-llm-connection" class="secondary-button">Test LLM Connection</button>
-            <div id="llm-test-result" class="test-result"></div>
-          </div>
-        </section>
-        
-        <section>
-          <h2>CSS Rules</h2>
-          <div id="css-rules-container" class="css-rules-container">
-            <div class="css-rule-header">
-              <span>Selector</span>
-              <span>Properties</span>
-              <span>Actions</span>
-            </div>
-            <div id="css-rules-list" class="css-rules-list">
-              <!-- Rules will be added here dynamically -->
-            </div>
-          </div>
-          
-          <button id="generate-css-rules" class="secondary-button">Generate CSS Rules</button>
-          <div id="generate-css-form" class="generate-css-form" style="display: none;">
-            <label for="css-description">Describe what you want to change:</label>
-            <textarea id="css-description" placeholder="Example: Move text inputs to eye level, or make content more readable by adjusting spacing"></textarea>
-            <div class="form-actions">
-              <button id="confirm-generate-css" class="primary-button">Generate</button>
-              <button id="cancel-generate-css" class="secondary-button">Cancel</button>
-            </div>
-          </div>
-        </section>
-        
-        <button id="save-advanced" class="primary-button">Save Settings</button>
-      </div>
-      
-      <!-- Templates Tab -->
-      <div id="templates" class="tab-pane">
-        <section>
-          <h2>Manage Templates</h2>
-          <p>Templates let you quickly insert frequently used text. Use <kbd>Alt+1</kbd> through <kbd>Alt+9</kbd> to insert templates.</p>
-          
-          <div id="templates-container" class="templates-container">
-            <div class="template-header">
-              <span>Name</span>
-              <span>Content</span>
-              <span>Actions</span>
-            </div>
-            <div id="templates-list" class="templates-list">
-              <!-- Templates will be added here dynamically -->
-            </div>
-          </div>
-          
-          <button id="add-template" class="secondary-button">Add Template</button>
-          <div id="template-form" class="template-form" style="display: none;">
-            <input type="hidden" id="template-id">
-            <div class="input-group">
-              <label for="template-name">Template Name:</label>
-              <input type="text" id="template-name" placeholder="e.g., Greeting, Signature">
-            </div>
-            <div class="input-group">
-              <label for="template-content">Template Content:</label>
-              <textarea id="template-content" placeholder="Enter the template text..."></textarea>
-            </div>
-            <div class="form-actions">
-              <button id="save-template" class="primary-button">Save Template</button>
-              <button id="cancel-template" class="secondary-button">Cancel</button>
-            </div>
-          </div>
-          
-          <button id="generate-template" class="secondary-button">Generate Template with LLM</button>
-          <div id="generate-template-form" class="template-form" style="display: none;">
-            <div class="input-group">
-              <label for="template-description">Describe what kind of template you need:</label>
-              <textarea id="template-description" placeholder="Example: Create a polite email template for requesting a meeting"></textarea>
-            </div>
-            <div class="form-actions">
-              <button id="confirm-generate-template" class="primary-button">Generate</button>
-              <button id="cancel-generate-template" class="secondary-button">Cancel</button>
-            </div>
-          </div>
-        </section>
-      </div>
-      
-      <!-- About Tab -->
-      <div id="about" class="tab-pane">
-        <section>
-          <h2>About Custom Input Box Everywhere</h2>
-          <p>Version 1.2.0</p>
-          <p>This extension provides a floating input box that syncs with the currently focused input field, allowing you to type at eye level and reduce neck strain.</p>
-          
-          <h3>Features:</h3>
-          <ul>
-            <li><strong>Habit Mode:</strong> Simple input box that syncs with focused fields</li>
-            <li><strong>Advanced Mode:</strong> AI-powered features including CSS modification and content summarization</li>
-            <li><strong>Multiple positions:</strong> Top, center, floating, or custom position</li>
-            <li><strong>Template system:</strong> Save and quickly insert frequently used text</li>
-            <li><strong>Editor support:</strong> Works with rich text editors and code editors</li>
-            <li><strong>Theme options:</strong> Light, dark, minimal, or system-based</li>
-          </ul>
-          
-          <h3>Privacy:</h3>
-          <p>This extension does not collect or transmit any personal data. When using online LLM features, text is sent to the selected model provider (Hugging Face) according to their privacy policy.</p>
-          
-          <h3>Credits:</h3>
-          <p>This extension uses the following open-source models:</p>
-          <ul>
-            <li>Mistral 7B - <a href="https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2" target="_blank">mistralai/Mistral-7B-Instruct-v0.2</a></li>
-            <li>Phi-3 Mini - <a href="https://huggingface.co/microsoft/Phi-3-mini-4k-instruct" target="_blank">microsoft/Phi-3-mini-4k-instruct</a></li>
-          </ul>
-          
-          <h3>Feedback:</h3>
-          <p>If you have suggestions or encounter issues, please let us know!</p>
-        </section>
+    <div class="section">
+      <div class="form-group">
+        <div class="toggle-label">
+          <label for="enabled-toggle">Enable extension</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="enabled-toggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
     
-    <footer>
-      <button id="close-popup" class="secondary-button">Close</button>
-      <div class="debug-link">
-        <a href="debug.html">Troubleshoot LLM Issues</a>
+    <div class="section">
+      <h2 class="section-title">Mode</h2>
+      <div class="form-group">
+        <label class="inline-label">
+          <input type="radio" name="mode" value="habit" checked>
+          Habit Mode
+        </label>
+        <label class="inline-label">
+          <input type="radio" name="mode" value="advanced">
+          Advanced Mode
+        </label>
+        <div style="margin-top: 4px; font-size: 12px; color: #666;">
+          Habit Mode syncs with original inputs. Advanced Mode adds AI features.
+        </div>
       </div>
-    </footer>
+    </div>
+    
+    <div class="section">
+      <h2 class="section-title">Position</h2>
+      <div class="form-group">
+        <label class="inline-label">
+          <input type="radio" name="position" value="top" checked>
+          Top
+        </label>
+        <label class="inline-label">
+          <input type="radio" name="position" value="center">
+          Center
+        </label>
+        <label class="inline-label">
+          <input type="radio" name="position" value="float">
+          Floating
+        </label>
+      </div>
+    </div>
+    
+    <div class="section advanced-settings">
+      <h2 class="section-title">Groq AI Integration</h2>
+      <div class="form-group">
+        <label for="grok-api-key">API Key</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="password" id="grok-api-key" placeholder="Enter your Groq API key">
+          <button id="test-api">Test</button>
+        </div>
+        <div id="api-status"></div>
+        <div style="margin-top: 4px; font-size: 12px; color: #666;">
+          Get your API key from <a href="https://console.groq.com/keys" target="_blank">Groq Console</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2 class="section-title collapsible">Appearance</h2>
+      <div class="collapsible-content">
+        <div class="form-group">
+          <label for="opacity">Opacity</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="opacity" min="0.1" max="1.0" step="0.05" value="0.9">
+            <span class="range-value" id="opacity-value">0.9</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="font-size">Font Size</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="font-size" min="12" max="24" step="1" value="16">
+            <span class="range-value" id="font-size-value">16px</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="width">Width</label>
+          <select id="width">
+            <option value="60%">Narrow (60%)</option>
+            <option value="80%" selected>Medium (80%)</option>
+            <option value="95%">Wide (95%)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="light" selected>Light</option>
+            <option value="dark">Dark</option>
+            <option value="high-contrast">High Contrast</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="inline-label">
+            <input type="checkbox" id="always-show-toolbar" checked>
+            Always show formatting toolbar
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2 class="section-title collapsible">Keyboard Shortcuts</h2>
+      <div class="collapsible-content expanded">
+        <div class="shortcut-list">
+          <div class="shortcut-item">
+            <span class="shortcut-keys">Ctrl+Shift+I</span>
+            <span class="shortcut-desc">Toggle extension on/off</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">Ctrl+Shift+M</span>
+            <span class="shortcut-desc">Toggle mode</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="button-row">
+      <button id="reset-button">Reset to Defaults</button>
+      <button id="save-button">Save Settings</button>
+    </div>
+    
+    <div class="footer">
+      <span class="last-updated">Last Updated: 2025-06-18 12:54:03</span>
+    </div>
   </div>
   
-  <script src="../lib/llm-service.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
