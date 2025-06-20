@@ -1,54 +1,58 @@
 {
-  "manifest_version": 2,
-  "name": "Custom Input Box Everywhere",
+  "manifest_version": 3,
+  "name": "Floating Input Box",
   "version": "1.0",
-  "description": "Provides a customizable input box that follows your focus and can be positioned at eye level",
+  "description": "Creates a floating input box at eye level that syncs with focused text inputs",
   "icons": {
     "48": "icons/icon-48.png",
     "96": "icons/icon-96.png",
     "128": "icons/icon-128.png"
   },
   "permissions": [
-    "activeTab",
     "storage",
-    "tabs",
-    "<all_urls>",
-    "webRequest"
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "tabs"
   ],
-  "browser_action": {
-    "default_icon": "icons/icon-48.png",
-    "default_title": "Custom Input Box",
-    "default_popup": "popup/popup.html"
-  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
-    "scripts": ["background/background.js"],
-    "persistent": true
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": [
-        "utils/domUtils.js",
-        "utils/grokApi.js",
-        "content_scripts/habitMode.js",
-        "content_scripts/advancedMode.js",
-        "content_scripts/contentScript.js"
-      ],
-      "css": ["content_scripts/styles.css"]
+      "js": ["content.js"],
+      "css": ["styles/floating-box.css"],
+      "run_at": "document_end"
     }
   ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
   "commands": {
-    "toggle-extension": {
+    "toggle-floating-box": {
       "suggested_key": {
-        "default": "Ctrl+Shift+I"
+        "default": "Ctrl+Shift+F"
       },
-      "description": "Toggle extension on/off"
+      "description": "Toggle floating input box"
     },
-    "toggle-mode": {
+    "toggle-advanced-mode": {
       "suggested_key": {
-        "default": "Ctrl+Shift+M"
+        "default": "Ctrl+Shift+A"
       },
-      "description": "Toggle between Habit and Advanced mode"
+      "description": "Toggle advanced mode"
     }
   }
 }
