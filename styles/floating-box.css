@@ -1,0 +1,174 @@
+/* Styles for the floating input box */
+
+#floating-input-box-extension {
+  position: fixed !important;
+  z-index: 999999 !important; /* Extremely high z-index to ensure visibility */
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  transition: all 0.3s ease !important;
+  max-width: 80% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border: 2px solid #4a90e2 !important; /* Added border for visibility */
+}
+
+#floating-input-box-extension.top {
+  top: 20px !important;
+}
+
+#floating-input-box-extension.center {
+  top: 40% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.input-container {
+  display: flex !important;
+  align-items: flex-start !important;
+}
+
+.floating-input {
+  width: 100% !important;
+  min-height: 60px !important;
+  padding: 10px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  font-size: 16px !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  resize: vertical !important;
+  outline: none !important;
+  background-color: white !important;
+  color: black !important;
+}
+
+.floating-input:focus {
+  border-color: #4a90e2 !important;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) !important;
+}
+
+.close-button {
+  background: none !important;
+  border: none !important;
+  color: #666 !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  padding: 0 0 0 8px !important;
+  line-height: 1 !important;
+  align-self: flex-start !important;
+}
+
+.close-button:hover {
+  color: #333 !important;
+}
+
+/* Styles for the LLM processor UI */
+#floating-llm-processor {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 2147483647 !important; /* Maximum z-index */
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  width: 500px !important;
+  max-width: 90% !important;
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+}
+
+.processor-content h3 {
+  margin-top: 0 !important;
+  color: #333 !important;
+  border-bottom: 1px solid #eee !important;
+  padding-bottom: 10px !important;
+}
+
+.progress-indicator {
+  display: flex !important;
+  align-items: center !important;
+  margin: 20px 0 !important;
+}
+
+.spinner {
+  width: 24px !important;
+  height: 24px !important;
+  border: 3px solid #f3f3f3 !important;
+  border-top: 3px solid #4a90e2 !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin-right: 15px !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.llm-results {
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  margin: 15px 0 !important;
+  padding: 10px !important;
+  background-color: #f9f9f9 !important;
+  border-radius: 4px !important;
+}
+
+.summary-box, .css-suggestions {
+  margin-bottom: 15px !important;
+}
+
+.summary-box h4, .css-suggestions h4 {
+  margin-top: 0 !important;
+  color: #555 !important;
+}
+
+pre {
+  background-color: #f0f0f0 !important;
+  padding: 10px !important;
+  border-radius: 4px !important;
+  overflow-x: auto !important;
+  font-family: monospace !important;
+  font-size: 14px !important;
+}
+
+.apply-css-button, .cancel-button, .close-button, .copy-button {
+  padding: 8px 15px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  margin-right: 10px !important;
+  background-color: #4a90e2 !important;
+  color: white !important;
+}
+
+.apply-css-button:hover {
+  background-color: #3a80d2 !important;
+}
+
+.cancel-button, .close-button {
+  background-color: #f2f2f2 !important;
+  color: #555 !important;
+}
+
+.cancel-button:hover, .close-button:hover {
+  background-color: #e2e2e2 !important;
+}
+
+/* CSS Editor Styles */
+#css-editor-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  z-index: 2147483647 !important; /* Maximum z-index */
+}
+
+.css-editor-overlay * {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}

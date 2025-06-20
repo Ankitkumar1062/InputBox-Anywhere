@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+  <title>Floating Input Box</title>
+</head>
+<body>
+  <div class="popup-container">
+    <h1>Floating Input Box</h1>
+    
+    <div class="switch-container">
+      <label for="enable-toggle">Enable Extension</label>
+      <label class="switch">
+        <input type="checkbox" id="enable-toggle" checked>
+        <span class="slider round"></span>
+      </label>
+    </div>
+    
+    <div class="mode-selection">
+      <h2>Mode</h2>
+      <div class="radio-container">
+        <input type="radio" id="habit-mode" name="mode" value="habit" checked>
+        <label for="habit-mode">Habit Mode</label>
+        <p class="description">Creates a floating input box when you focus on any text field</p>
+      </div>
+      
+      <div class="radio-container">
+        <input type="radio" id="advanced-mode" name="mode" value="advanced">
+        <label for="advanced-mode">Advanced Mode</label>
+        <p class="description">Access to TinyLlama tools and customization</p>
+      </div>
+    </div>
+    
+    <div class="position-selection">
+      <h2>Position</h2>
+      <div class="radio-container">
+        <input type="radio" id="position-top" name="position" value="top" checked>
+        <label for="position-top">Top</label>
+      </div>
+      
+      <div class="radio-container">
+        <input type="radio" id="position-center" name="position" value="center">
+        <label for="position-center">Center</label>
+      </div>
+    </div>
+    
+    <!-- Advanced Tools Section -->
+    <div id="advanced-tools" class="advanced-tools">
+      <h2>Advanced Tools</h2>
+      
+      <!-- Summarization Tool -->
+      <div class="tool-card">
+        <h3>Page Summarization</h3>
+        <p class="description">Generate a concise summary of the current page</p>
+        <div class="tool-options">
+          <select id="summary-type">
+            <option value="full">Full Page</option>
+            <option value="selection">Selected Text</option>
+            <option value="main">Main Content</option>
+          </select>
+          <button id="summarize-btn">Summarize</button>
+        </div>
+      </div>
+      
+      <!-- CSS Customization Tool -->
+      <div class="tool-card">
+        <h3>CSS Customization</h3>
+        <p class="description">Apply custom CSS to the current page</p>
+        <div class="tool-options">
+          <select id="css-preset">
+            <option value="custom">Custom CSS</option>
+            <option value="readability">Readability Mode</option>
+            <option value="dark">Dark Mode</option>
+            <option value="large-text">Large Text</option>
+            <option value="minimal">Minimal UI</option>
+          </select>
+          <button id="apply-css-btn">Apply CSS</button>
+          <button id="edit-css-btn">Edit CSS</button>
+        </div>
+      </div>
+      
+      <!-- Server Status -->
+      <div id="server-status" class="server-status">
+        <h3>LLM Server Status</h3>
+        <div class="status-indicator">
+          <span class="status-dot disconnected"></span>
+          <span class="status-text">Disconnected</span>
+        </div>
+        <button id="check-server">Check Connection</button>
+      </div>
+    </div>
+    
+    <div class="shortcuts">
+      <h2>Keyboard Shortcuts</h2>
+      <ul>
+        <li><strong>Ctrl+Shift+F</strong>: Toggle floating input box</li>
+        <li><strong>Ctrl+Shift+A</strong>: Toggle advanced mode</li>
+        <li><strong>Ctrl+Shift+S</strong>: Quick summarize</li>
+        <li><strong>Ctrl+Shift+C</strong>: View/edit CSS</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <a href="#" id="open-options">Advanced Settings</a>
+      <span class="version">v1.0.0</span>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
