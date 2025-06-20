@@ -1,436 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom Input Box Settings</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-      margin: 0;
-      padding: 16px;
-      width: 320px;
-      color: #333;
-    }
-    
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    
-    .title {
-      font-size: 18px;
-      font-weight: 500;
-      margin: 0;
-    }
-    
-    .version {
-      font-size: 12px;
-      color: #888;
-    }
-    
-    .section {
-      margin-bottom: 24px;
-    }
-    
-    .section-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin: 0 0 8px 0;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .form-group {
-      margin-bottom: 12px;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
-    
-    .inline-label {
-      display: inline-flex;
-      align-items: center;
-      margin-right: 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    
-    .inline-label input {
-      margin-right: 4px;
-    }
-    
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 22px;
-    }
-    
-    .toggle-switch input { 
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 22px;
-    }
-    
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 16px;
-      width: 16px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    
-    input:checked + .toggle-slider {
-      background-color: #4285f4;
-    }
-    
-    input:checked + .toggle-slider:before {
-      transform: translateX(22px);
-    }
-    
-    input[type="text"],
-    input[type="password"],
-    select {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    
-    input[type="range"] {
-      width: 100%;
-    }
-    
-    .range-value {
-      display: inline-block;
-      margin-left: 8px;
-      font-size: 14px;
-      color: #666;
-    }
-    
-    .button-row {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 24px;
-    }
-    
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    
-    #save-button {
-      background-color: #4285f4;
-      color: white;
-    }
-    
-    #save-button:hover {
-      background-color: #2b71e6;
-    }
-    
-    #reset-button {
-      background-color: #f1f1f1;
-      color: #333;
-    }
-    
-    #reset-button:hover {
-      background-color: #e4e4e4;
-    }
-    
-    #test-api {
-      background-color: #f1f1f1;
-      color: #333;
-      font-size: 12px;
-      padding: 4px 8px;
-    }
-    
-    #test-api:hover {
-      background-color: #e4e4e4;
-    }
-    
-    #api-status {
-      display: none;
-      font-size: 12px;
-      margin-top: 8px;
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-    
-    #api-status.success {
-      background-color: #e6f4ea;
-      color: #0f9d58;
-    }
-    
-    #api-status.error {
-      background-color: #fce8e6;
-      color: #ea4335;
-    }
-    
-    .collapsible {
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .collapsible::after {
-      content: "▼";
-      font-size: 10px;
-      color: #888;
-    }
-    
-    .collapsible.collapsed::after {
-      content: "►";
-    }
-    
-    .collapsible-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-    }
-    
-    .collapsible-content.expanded {
-      max-height: 500px;
-    }
-    
-    .shortcut-list {
-      margin: 8px 0 0;
-      padding: 0;
-      list-style: none;
-      font-size: 13px;
-    }
-    
-    .shortcut-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-      border-bottom: 1px dotted #eee;
-    }
-    
-    .shortcut-keys {
-      font-weight: 500;
-      margin-right: 8px;
-    }
-    
-    .shortcut-desc {
-      color: #666;
-    }
-    
-    .footer {
-      margin-top: 16px;
-      font-size: 12px;
-      color: #888;
-      display: flex;
-      justify-content: space-between;
-    }
-    
-    .advanced-settings {
-      display: none;
-    }
-    
-    .status-notification {
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      display: none;
-      z-index: 1000;
-    }
-    
-    .status-notification.success {
-      background-color: #e6f4ea;
-      color: #0f9d58;
-    }
-    
-    .status-notification.error {
-      background-color: #fce8e6;
-      color: #ea4335;
-    }
-    
-    .status-notification.info {
-      background-color: #e8f0fe;
-      color: #4285f4;
-    }
-    
-    .toggle-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  </style>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+  <title>Floating Input Box</title>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1 class="title">Custom Input Box</h1>
-      <span class="version">v1.0</span>
+  <div class="popup-container">
+    <h1>Floating Input Box</h1>
+    
+    <div class="switch-container">
+      <label for="enable-toggle">Enable Extension</label>
+      <label class="switch">
+        <input type="checkbox" id="enable-toggle" checked>
+        <span class="slider round"></span>
+      </label>
     </div>
     
-    <div class="section">
-      <div class="form-group">
-        <div class="toggle-label">
-          <label for="enabled-toggle">Enable extension</label>
-          <label class="toggle-switch">
-            <input type="checkbox" id="enabled-toggle" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
+    <div class="mode-selection">
+      <h2>Mode</h2>
+      <div class="radio-container">
+        <input type="radio" id="habit-mode" name="mode" value="habit" checked>
+        <label for="habit-mode">Habit Mode</label>
+        <p class="description">Creates a floating input box when you focus on any text field</p>
+      </div>
+      
+      <div class="radio-container">
+        <input type="radio" id="advanced-mode" name="mode" value="advanced">
+        <label for="advanced-mode">Advanced Mode</label>
+        <p class="description">Access to TinyLlama tools and customization</p>
       </div>
     </div>
     
-    <div class="section">
-      <h2 class="section-title">Mode</h2>
-      <div class="form-group">
-        <label class="inline-label">
-          <input type="radio" name="mode" value="habit" checked>
-          Habit Mode
-        </label>
-        <label class="inline-label">
-          <input type="radio" name="mode" value="advanced">
-          Advanced Mode
-        </label>
-        <div style="margin-top: 4px; font-size: 12px; color: #666;">
-          Habit Mode syncs with original inputs. Advanced Mode adds AI features.
-        </div>
+    <div class="position-selection">
+      <h2>Position</h2>
+      <div class="radio-container">
+        <input type="radio" id="position-top" name="position" value="top" checked>
+        <label for="position-top">Top</label>
+      </div>
+      
+      <div class="radio-container">
+        <input type="radio" id="position-center" name="position" value="center">
+        <label for="position-center">Center</label>
       </div>
     </div>
     
-    <div class="section">
-      <h2 class="section-title">Position</h2>
-      <div class="form-group">
-        <label class="inline-label">
-          <input type="radio" name="position" value="top" checked>
-          Top
-        </label>
-        <label class="inline-label">
-          <input type="radio" name="position" value="center">
-          Center
-        </label>
-        <label class="inline-label">
-          <input type="radio" name="position" value="float">
-          Floating
-        </label>
-      </div>
-    </div>
-    
-    <div class="section advanced-settings">
-      <h2 class="section-title">Groq AI Integration</h2>
-      <div class="form-group">
-        <label for="grok-api-key">API Key</label>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <input type="password" id="grok-api-key" placeholder="Enter your Groq API key">
-          <button id="test-api">Test</button>
-        </div>
-        <div id="api-status"></div>
-        <div style="margin-top: 4px; font-size: 12px; color: #666;">
-          Get your API key from <a href="https://console.groq.com/keys" target="_blank">Groq Console</a>
-        </div>
-      </div>
-    </div>
-    
-    <div class="section">
-      <h2 class="section-title collapsible">Appearance</h2>
-      <div class="collapsible-content">
-        <div class="form-group">
-          <label for="opacity">Opacity</label>
-          <div style="display: flex; align-items: center;">
-            <input type="range" id="opacity" min="0.1" max="1.0" step="0.05" value="0.9">
-            <span class="range-value" id="opacity-value">0.9</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="font-size">Font Size</label>
-          <div style="display: flex; align-items: center;">
-            <input type="range" id="font-size" min="12" max="24" step="1" value="16">
-            <span class="range-value" id="font-size-value">16px</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="width">Width</label>
-          <select id="width">
-            <option value="60%">Narrow (60%)</option>
-            <option value="80%" selected>Medium (80%)</option>
-            <option value="95%">Wide (95%)</option>
+    <!-- Advanced Tools Section -->
+    <div id="advanced-tools" class="advanced-tools">
+      <h2>Advanced Tools</h2>
+      
+      <!-- Summarization Tool -->
+      <div class="tool-card">
+        <h3>Page Summarization</h3>
+        <p class="description">Generate a concise summary of the current page</p>
+        <div class="tool-options">
+          <select id="summary-type">
+            <option value="full">Full Page</option>
+            <option value="selection">Selected Text</option>
+            <option value="main">Main Content</option>
           </select>
+          <button id="summarize-btn">Summarize</button>
         </div>
-        
-        <div class="form-group">
-          <label for="theme">Theme</label>
-          <select id="theme">
-            <option value="light" selected>Light</option>
-            <option value="dark">Dark</option>
-            <option value="high-contrast">High Contrast</option>
+      </div>
+      
+      <!-- CSS Customization Tool -->
+      <div class="tool-card">
+        <h3>CSS Customization</h3>
+        <p class="description">Apply custom CSS to the current page</p>
+        <div class="tool-options">
+          <select id="css-preset">
+            <option value="custom">Custom CSS</option>
+            <option value="readability">Readability Mode</option>
+            <option value="dark">Dark Mode</option>
+            <option value="large-text">Large Text</option>
+            <option value="minimal">Minimal UI</option>
           </select>
+          <button id="apply-css-btn">Apply CSS</button>
+          <button id="edit-css-btn">Edit CSS</button>
         </div>
-        
-        <div class="form-group">
-          <label class="inline-label">
-            <input type="checkbox" id="always-show-toolbar" checked>
-            Always show formatting toolbar
-          </label>
+      </div>
+      
+      <!-- Server Status -->
+      <div id="server-status" class="server-status">
+        <h3>LLM Server Status</h3>
+        <div class="status-indicator">
+          <span class="status-dot disconnected"></span>
+          <span class="status-text">Disconnected</span>
         </div>
+        <button id="check-server">Check Connection</button>
       </div>
     </div>
     
-    <div class="section">
-      <h2 class="section-title collapsible">Keyboard Shortcuts</h2>
-      <div class="collapsible-content expanded">
-        <div class="shortcut-list">
-          <div class="shortcut-item">
-            <span class="shortcut-keys">Ctrl+Shift+I</span>
-            <span class="shortcut-desc">Toggle extension on/off</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">Ctrl+Shift+M</span>
-            <span class="shortcut-desc">Toggle mode</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="button-row">
-      <button id="reset-button">Reset to Defaults</button>
-      <button id="save-button">Save Settings</button>
+    <div class="shortcuts">
+      <h2>Keyboard Shortcuts</h2>
+      <ul>
+        <li><strong>Ctrl+Shift+F</strong>: Toggle floating input box</li>
+        <li><strong>Ctrl+Shift+A</strong>: Toggle advanced mode</li>
+        <li><strong>Ctrl+Shift+S</strong>: Quick summarize</li>
+        <li><strong>Ctrl+Shift+C</strong>: View/edit CSS</li>
+      </ul>
     </div>
     
     <div class="footer">
-      <span class="last-updated">Last Updated: 2025-06-18 12:54:03</span>
+      <a href="#" id="open-options">Advanced Settings</a>
+      <span class="version">v1.0.0</span>
     </div>
   </div>
-  
   <script src="popup.js"></script>
 </body>
 </html>
