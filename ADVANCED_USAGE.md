@@ -1,3 +1,4 @@
+
 # Advanced Usage for Floating Input Box Extension
 
 ## Handling Long Content Pages
