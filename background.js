@@ -1,14 +1,34 @@
 // Background script for Floating Input Box extension
 
+// Update the extension state object to include customTheme
 let extensionState = {
   enabled: true,
-  mode: 'habit', // 'habit' or 'advanced'
-  position: 'top', // 'top' or 'center'
+  mode: 'habit',
+  position: 'top',
   server: {
     url: 'http://localhost:8000',
     connected: false
+  },
+  customTheme: {
+    theme: 'light',
+    backgroundColor: '#ffffff',
+    textColor: '#333333',
+    accentColor: '#4a90e2',
+    width: '60',
+    minHeight: '40',
+    opacity: '100',
+    backdropBlur: '5',
+    animation: 'fade',
+    borderRadius: '12',
+    shadowSize: 'medium',
+    fontSize: '16',
+    fontFamily: 'system-ui',
+    showTimestamp: true,
+    timestamp: '2025-06-21 05:07:20',
+    username: 'Ankitkumar1062'
   }
 };
+
 
 // Initialize state from storage
 browser.storage.local.get('extensionState').then(result => {
@@ -48,11 +68,20 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ state: extensionState });
     return true;
   } else if (message.action === 'setState') {
-    extensionState = { ...extensionState, ...message.state };
-    console.log("Updated state:", extensionState);
-    updateState();
-    sendResponse({ success: true });
-    return true;
+      // FIXED: Properly merge nested objects like customTheme
+      if (message.state.customTheme) {
+        extensionState.customTheme = {
+          ...extensionState.customTheme,
+          ...message.state.customTheme
+        };
+        // Delete from message.state to avoid double application
+        delete message.state.customTheme;
+      }
+      extensionState = { ...extensionState, ...message.state };
+      console.log("Updated state:", extensionState);
+      updateState();
+      sendResponse({ success: true });
+      return true;
   } else if (message.action === 'checkServer') {
     console.log("Checking server connection");
     checkServerConnection()
@@ -76,6 +105,17 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     extensionState.server.url = message.url;
     updateState();
     sendResponse({ success: true });
+    return true;
+  } else if (message.action === 'callLLM') {
+    console.log("Calling LLM with prompt:", message.prompt.substring(0, 100) + "...");
+    callLLM(message.prompt)
+      .then(response => {
+        sendResponse({ success: true, response: response });
+      })
+      .catch(error => {
+        console.error('Error calling LLM:', error);
+        sendResponse({ success: false, error: error.message });
+      });
     return true;
   }
 });
@@ -118,6 +158,39 @@ async function checkServerConnection() {
   } catch (error) {
     console.error('Server connection failed:', error);
     return false;
+  }
+}
+
+// Function to call the local LLM server for processing prompts
+async function callLLM(prompt) {
+  console.log("Sending prompt to LLM server:", prompt.substring(0, 100) + "...");
+  try {
+    const response = await fetch(`${extensionState.server.url}/process`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: prompt,
+        action: 'summarize' // Assuming 'summarize' action for LLM server
+      }),
+      timeout: 30000 // 30 seconds timeout for LLM response
+    });
+
+    if (!response.ok) {
+      throw new Error(`LLM Server error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (data.summary) {
+      console.log("LLM response successful");
+      return data.summary;
+    } else {
+      throw new Error("LLM response did not contain a summary.");
+    }
+  } catch (error) {
+    console.error('Error during LLM call:', error);
+    throw error; // Re-throw to be caught by the message handler
   }
 }
 
