@@ -1,65 +1,119 @@
-/* Styles for the floating input box */
+/* Enhanced styles for the floating input box */
 
 #floating-input-box-extension {
   position: fixed !important;
-  z-index: 999999 !important; /* Extremely high z-index to ensure visibility */
+  z-index: 999999 !important;
   background-color: #ffffff !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-  border-radius: 8px !important;
-  padding: 15px !important;
-  transition: all 0.3s ease !important;
-  max-width: 80% !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  border: 2px solid #4a90e2 !important; /* Added border for visibility */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  width: 60% !important; /* Increased from 80% max-width to 60% width */
+  min-width: 500px !important; /* Minimum width to ensure usability */
+  max-width: 1000px !important; /* Maximum width for very large screens */
+  left: 50%;
+  transform: translateX(-50%);
+  border: none !important; /* Removed border in favor of shadow */
+  backdrop-filter: blur(5px) !important; /* Subtle blur effect for background */
+}
+
+@keyframes floating-box-appear {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 #floating-input-box-extension.top {
-  top: 20px !important;
+  top: 30px;
 }
 
 #floating-input-box-extension.center {
-  top: 40% !important;
-  transform: translate(-50%, -50%) !important;
+  top: 40%;
+  transform: translate(-50%, -50%);
+}
+
+#floating-input-box-extension::before {
+  content: "Input Box" !important;
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #4a90e2 !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
 }
 
 .input-container {
   display: flex !important;
   align-items: flex-start !important;
+  position: relative !important;
 }
 
 .floating-input {
   width: 100% !important;
-  min-height: 60px !important;
-  padding: 10px !important;
-  border: 1px solid #ddd !important;
-  border-radius: 4px !important;
+  min-height: 40px !important; /* Increased height for comfort */
+  padding: 15px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
   font-size: 16px !important;
   font-family: system-ui, -apple-system, sans-serif !important;
   resize: vertical !important;
   outline: none !important;
   background-color: white !important;
-  color: black !important;
+  color: #333 !important;
+  line-height: 1.5 !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 
 .floating-input:focus {
   border-color: #4a90e2 !important;
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2) !important;
+}
+
+.floating-input::placeholder {
+  color: #aaa !important;
+  font-style: italic !important;
 }
 
 .close-button {
   background: none !important;
   border: none !important;
-  color: #666 !important;
-  font-size: 24px !important;
+  color: #999 !important;
+  font-size: 28px !important;
   cursor: pointer !important;
-  padding: 0 0 0 8px !important;
+  padding: 0 0 0 12px !important;
   line-height: 1 !important;
   align-self: flex-start !important;
+  transition: color 0.2s !important;
+  margin-top: -5px !important;
+  font-weight: 300 !important;
 }
 
 .close-button:hover {
   color: #333 !important;
+}
+
+/* User info display - based on current date & user info provided */
+#floating-input-box-extension::after {
+  content: "Last updated: 2025-06-21 • Ankitkumar1062" !important;
+  display: block !important;
+  font-size: 11px !important;
+  color: #999 !important;
+  margin-top: 10px !important;
+  text-align: right !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  #floating-input-box-extension {
+    width: 90% !important;
+    min-width: unset !important;
+  }
+  
+  .floating-input {
+    min-height: 40px !important;
+  }
 }
 
 /* Styles for the LLM processor UI */
