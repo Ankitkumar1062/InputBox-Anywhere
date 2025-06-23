@@ -14,6 +14,39 @@ let currentCSS = '';
 let cssEditor = null;
 let documentClickHandler = null;
 
+// Helper functions for reading/writing to original input elements
+// Reads text from either a form control or a contentEditable element
+function readOriginal(el) {
+  if (el.isContentEditable) return el.innerText || '';
+  return el.value || '';
+}
+
+// Writes text back into either a form control or a contentEditable element
+function writeOriginal(el, text) {
+  if (el.isContentEditable) el.innerText = text;
+  else                      el.value     = text;
+}
+
+// Insert a full-screen blurred backdrop
+function showBlurOverlay() {
+  const ov = document.createElement('div');
+  ov.id = 'floating-input-blur-overlay';
+  Object.assign(ov.style, {
+    position: 'fixed',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backdropFilter: 'blur(8px)',      // adjust blur as you like
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    zIndex: 999998                   // just underneath your floatingBox
+  });
+  document.body.appendChild(ov);
+}
+
+// Remove it
+function removeBlurOverlay() {
+  const ov = document.getElementById('floating-input-blur-overlay');
+  if (ov) ov.remove();
+}
+
 let isDragging = false;
 let dragOffsetX;
 let dragOffsetY;
@@ -454,20 +487,49 @@ function createFloatingBox() {
   const floatingInput = document.createElement('textarea');
   floatingInput.className = 'floating-input';
   floatingInput.placeholder = 'Type here...';
-  
-  // Sync from floating input to original input
+
+  // 1) Seed the floating textarea from the page
+  floatingInput.value = readOriginal(currentInputElement);
+
+  // 2) Floating → Original
   floatingInput.addEventListener('input', () => {
-    if (currentInputElement) {
-      currentInputElement.value = floatingInput.value;
-      
-      // Trigger change and input events on the original element
-      const inputEvent = new Event('input', { bubbles: true });
-      const changeEvent = new Event('change', { bubbles: true });
-      currentInputElement.dispatchEvent(inputEvent);
-      currentInputElement.dispatchEvent(changeEvent);
+    if (!currentInputElement) return;
+    writeOriginal(currentInputElement, floatingInput.value);
+    // for real inputs, also fire input/change events
+    if (!currentInputElement.isContentEditable) {
+      currentInputElement.dispatchEvent(new Event('input',{bubbles:true}));
+      currentInputElement.dispatchEvent(new Event('change',{bubbles:true}));
     }
   });
-  
+
+  // only for contentEditable (e.g. WhatsApp)
+  let poller = null;
+  if (currentInputElement.isContentEditable) {
+    poller = setInterval(() => {
+      const text = readOriginal(currentInputElement);
+      if (floatingInput.value !== text) {
+        floatingInput.value = text;
+      }
+    }, 100); // adjust interval as you like (100ms is usually fine)
+
+    // stash so we can clear it later
+    floatingBox._poller = poller;
+  }
+
+  // 3) Original → Floating
+  const syncHandler = () => {
+    const newVal = readOriginal(currentInputElement);
+    if (floatingInput.value !== newVal) {
+      floatingInput.value = newVal;
+    }
+  };
+  // listen to both input and keyup (covers most contentEditable widgets)
+  currentInputElement.addEventListener('input', syncHandler);
+  currentInputElement.addEventListener('keyup',  syncHandler);
+
+  // stash this so you can remove it later
+  floatingBox._syncHandler = syncHandler;
+
   // Add keyboard handling
   floatingInput.addEventListener('keydown', (e) => {
     // Handle tab, enter, etc.
@@ -488,6 +550,26 @@ function createFloatingBox() {
   inputContainer.appendChild(closeButton);
   floatingBox.appendChild(inputContainer);
   
+  // 1) Advanced mode styling
+  if (extensionState.mode === 'advanced') {
+    Object.assign(floatingBox.style, {
+      position:       'fixed',
+      top:            '0',
+      left:           '0',
+      width:          '100%',
+      height:         '100%',
+      padding:        '20px',
+      boxSizing:      'border-sizing',
+      backgroundColor:'rgba(255,255,255,0.15)', // light translucent overlay
+      mixBlendMode:   'overlay',                // blend into the page
+      zIndex:         '9999999',
+      overflow:       'auto',                   // in case content spills
+      cursor:         'auto'
+    });
+  } else if (extensionState.mode === 'habit') {
+    showBlurOverlay();
+  }
+
   document.body.appendChild(floatingBox);
   console.log("Floating box added to DOM");
 
@@ -512,69 +594,64 @@ function createFloatingBox() {
     setTimeout(() => {
       // Remove any existing click handler first to avoid duplicates
       if (documentClickHandler) {
-        document.removeEventListener('click', documentClickHandler);
+        document.removeEventListener('click', documentClickHandler, true);
       }
       
       // Create and add the click handler
       documentClickHandler = (event) => {
+        console.log("Document click detected. Target:", event.target);
+        console.log("Floating Box exists:", !!floatingBox);
+        console.log("Current Input Element exists:", !!currentInputElement);
+        
+        const isClickInsideFloatingBox = floatingBox && floatingBox.contains(event.target);
+        const isClickInsideOriginalInput = currentInputElement && currentInputElement.contains(event.target);
+        
+        console.log("Click inside floating box:", isClickInsideFloatingBox);
+        console.log("Click inside original input:", isClickInsideOriginalInput);
+
         // Check if click is outside both the floating box and the original input
-        if (!floatingBox.contains(event.target) && 
-            currentInputElement && !currentInputElement.contains(event.target)) {
+        if (!isClickInsideFloatingBox && !isClickInsideOriginalInput) {
           console.log("Click outside detected, removing floating box");
           removeFloatingBox();
         }
       };
       
-      document.addEventListener('click', documentClickHandler);
+      // Attach listener in the capturing phase
+      document.addEventListener('click', documentClickHandler, true);
     }, 100);
   }, 100);
 }
 
 function removeFloatingBox() {
+  // remove blur first
+  removeBlurOverlay();
+
   if (floatingBox && floatingBox.parentNode) {
     floatingBox.parentNode.removeChild(floatingBox);
+
+    // Tear down two-way bind
+    if (currentInputElement && floatingBox._syncHandler) {
+      currentInputElement.removeEventListener('input', floatingBox._syncHandler);
+      currentInputElement.removeEventListener('keyup',  floatingBox._syncHandler);
+    }
+
+    // Clear poller if it exists
+    if (floatingBox && floatingBox._poller) {
+      clearInterval(floatingBox._poller);
+    }
+
     floatingBox = null;
     currentInputElement = null;
     console.log("Floating box removed");
     
-    // Remove the document click handler
+    // Remove the document click handler, also in capturing phase
     if (documentClickHandler) {
-      document.removeEventListener('click', documentClickHandler);
+      document.removeEventListener('click', documentClickHandler, true);
       documentClickHandler = null;
     }
   }
 }
 
-document.addEventListener('focusin', (event) => {
-  console.log("Focus detected on:", event.target.tagName);
-  
-  if (!extensionState.enabled) {
-    console.log("Extension disabled");
-    return;
-  }
-  
-  // Check if in advanced mode and the advanced floating input is disabled
-  // The advancedFloatingInput check is redundant now as isFloating handles it directly.
-  if (extensionState.mode === 'advanced' && !extensionState.isFloating) {
-    console.log("Floating input is disabled in advanced mode");
-    return;
-  }
-  
-  const target = event.target;
-  
-  // Check if target is a text input or textarea
-  if ((target.tagName === 'INPUT' && 
-       (target.type === 'text' || target.type === 'search' || target.type === 'email' || target.type === 'password')) || 
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable) {
-    
-    console.log("Valid input detected, creating floating box");
-    currentInputElement = target;
-    createFloatingBox();
-  }
-});
-
-// Handle input changes in the original input box
 document.addEventListener('input', (event) => {
   if (!extensionState.enabled || !floatingBox || !currentInputElement) return;
   
@@ -586,6 +663,32 @@ document.addEventListener('input', (event) => {
     if (floatingInput && floatingInput.value !== target.value) {
       floatingInput.value = target.value;
     }
+  }
+});
+
+document.addEventListener('click', (event) => {
+  if (!extensionState.enabled) return;
+
+  // If click happened *inside* the floating box, ignore
+  if (floatingBox && floatingBox.contains(event.target)) {
+    return;
+  }
+
+  const tgt = event.target;
+  // only true <input type="text|search|email|password">, <textarea>, or contentEditable
+  const isTextInput =
+    tgt.tagName === 'INPUT' &&
+    ['text', 'search', 'email', 'password'].includes(tgt.type);
+  const isTextarea = tgt.tagName === 'TEXTAREA';
+  const isCE = tgt.isContentEditable;
+
+  if (isTextInput || isTextarea || isCE) {
+    // remember which field
+    currentInputElement = tgt;
+    createFloatingBox();
+  } else {
+    // click outside any typing area should close it
+    removeFloatingBox();
   }
 });
 
@@ -1098,4 +1201,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add animation keyframes on DOMContentLoaded for consistency
   addAnimationKeyframes();
 });
-
