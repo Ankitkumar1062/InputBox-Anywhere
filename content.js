@@ -1,5 +1,104 @@
 // Content script for Floating Input Box extension
 
+// ===== Module: FormManager =====
+const FormManager = (() => {
+  const registry = new Map();
+  let counter = 1;
+
+  function deepQueryAll(root, selector) {
+    const results = [];
+    (function recurse(node) {
+      if (node.nodeType === Node.ELEMENT_NODE && node.matches(selector)) {
+        results.push(node);
+      }
+      if (node.shadowRoot) recurse(node.shadowRoot);
+      let child = node.firstElementChild;
+      while (child) {
+        recurse(child);
+        child = child.nextElementSibling;
+      }
+    })(root);
+    return results;
+  }
+
+  function registerNode(node) {
+    const id = `form-${counter++}`;
+    registry.set(id, { node, placeholder: null, lifted: false });
+  }
+
+  function detectForms() {
+    console.log('⏱ FormManager.detectForms running...');
+    registry.clear();
+    counter = 1;
+
+    // Real forms
+    deepQueryAll(document, 'form').forEach(registerNode);
+    // Pseudo-forms: containers with inputs/textareas
+    deepQueryAll(document, 'div, section, article')
+      .filter(el => el.querySelector('input,textarea'))
+      .forEach(registerNode);
+
+    const list = Array.from(registry.entries()).map(([id, { node }]) => {
+      const label = node.id || node.getAttribute('name') || `${node.tagName.toLowerCase()} #${id}`;
+      return { id, label };
+    });
+    console.log(`⏱ FormManager found ${list.length} form(s).`);
+    return list;
+  }
+
+  function createWrapper(id) {
+    const wrapper = document.createElement('div');
+    wrapper.id = `form-wrapper-${id}`;
+    Object.assign(wrapper.style, {
+      position: 'relative',
+      margin: '10px 0',
+      zIndex: 999999,
+      transition: 'transform 0.3s ease'
+    });
+    const first = document.body.firstElementChild;
+    document.body.insertBefore(wrapper, first);
+    return wrapper;
+  }
+
+  function toggleForm(id) {
+    const record = registry.get(id);
+    if (!record) return;
+    const { node, placeholder, lifted } = record;
+    if (!lifted) {
+      const comment = document.createComment(`placeholder-${id}`);
+      node.parentNode.insertBefore(comment, node);
+      const wrapper = document.getElementById(`form-wrapper-${id}`) || createWrapper(id);
+      wrapper.appendChild(node);
+      record.placeholder = comment;
+      record.lifted = true;
+    } else {
+      placeholder.parentNode.insertBefore(node, placeholder);
+      placeholder.remove();
+      record.placeholder = null;
+      record.lifted = false;
+    }
+  }
+
+  return { detectForms, toggleForm };
+})();
+
+// ===== Message Handling =====
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'listForms') {
+    const forms = FormManager.detectForms();
+    sendResponse({ forms });
+    return true;
+  }
+  if (message.action === 'toggleForm') {
+    FormManager.toggleForm(message.formId);
+    sendResponse({ success: true });
+    return true;
+  }
+  // Other actions fall through to existing handlers
+  return true;
+});
+
+// ===== Legacy functionality =====
 // Global variables for state management
 let currentInputElement = null;
 let floatingBox = null;
@@ -1201,3 +1300,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add animation keyframes on DOMContentLoaded for consistency
   addAnimationKeyframes();
 });
+
