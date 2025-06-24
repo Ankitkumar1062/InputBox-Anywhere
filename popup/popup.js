@@ -1,6 +1,56 @@
 // Popup script to handle user interactions
 const CURRENT_DATE_TIME = "2025-06-21 06:49:44";
 const CURRENT_USERNAME = "Ankitkumar1062";
+
+// ===== Module: StateManager =====
+const StateManager = (() => {
+  async function getState() {
+    const response = await browser.runtime.sendMessage({ action: 'getState' });
+    return response.state || {};
+  }
+
+  async function updateState(newState) {
+    await browser.runtime.sendMessage({ action: 'setState', state: newState });
+  }
+
+  return { getState, updateState };
+})();
+
+// ===== Module: FormListRenderer =====
+const FormListRenderer = (() => {
+  const container = document.getElementById('form-list');
+
+  function clear() {
+    container.innerHTML = '';
+  }
+
+  function render(forms) {
+    clear();
+    if (!forms || forms.length === 0) {
+      container.textContent = 'No forms detected on this page.';
+      return;
+    }
+    const ul = document.createElement('ul');
+    forms.forEach(({ id, label }) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.style.cursor = 'pointer';
+      btn.addEventListener('click', () => toggleForm(id));
+      li.appendChild(btn);
+      ul.appendChild(li);
+    });
+    container.appendChild(ul);
+  }
+
+  async function toggleForm(formId) {
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    await browser.tabs.sendMessage(tab.id, { action: 'toggleForm', formId });
+  }
+
+  return { render };
+})();
+
 document.addEventListener('DOMContentLoaded', async () => {
   const enableToggle = document.getElementById('enable-toggle');
   const habitModeRadio = document.getElementById('habit-mode');
@@ -10,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const checkServerButton = document.getElementById('check-server');
   const openOptionsLink = document.getElementById('open-options');
   const advancedTools = document.getElementById('advanced-tools');
+  const formListContainer = document.getElementById('form-list');
   
   // Advanced tool buttons
   const summarizeBtn = document.getElementById('summarize-btn');
@@ -47,8 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   
   // Get current state from background script
-  const response = await browser.runtime.sendMessage({ action: 'getState' });
-  const state = response.state;
+  const state = await StateManager.getState();
   
   // Update UI based on current state
   enableToggle.checked = state.enabled;
@@ -78,33 +128,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Add event listeners for mode switches
   enableToggle.addEventListener('change', () => {
-    updateState({ enabled: enableToggle.checked });
+    StateManager.updateState({ enabled: enableToggle.checked });
   });
   
   habitModeRadio.addEventListener('change', () => {
     if (habitModeRadio.checked) {
-      updateState({ mode: 'habit' });
+      StateManager.updateState({ mode: 'habit' });
       advancedTools.style.display = 'none';
     }
   });
   
-  advancedModeRadio.addEventListener('change', () => {
+  advancedModeRadio.addEventListener('change', async () => {
     if (advancedModeRadio.checked) {
-      updateState({ mode: 'advanced' });
+      await StateManager.updateState({ mode: 'advanced' });
       advancedTools.style.display = 'block';
-      checkServerConnection();
+      await listAndRenderForms();
     }
   });
   
   positionTopRadio.addEventListener('change', () => {
     if (positionTopRadio.checked) {
-      updateState({ position: 'top' });
+      StateManager.updateState({ position: 'top' });
     }
   });
   
   positionCenterRadio.addEventListener('change', () => {
     if (positionCenterRadio.checked) {
-      updateState({ position: 'center' });
+      StateManager.updateState({ position: 'center' });
     }
   });
   
@@ -116,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   floatingBoxToggle.addEventListener('change', () => {
-    updateState({ isFloating: floatingBoxToggle.checked });
+    StateManager.updateState({ isFloating: floatingBoxToggle.checked });
   });
   
   // Advanced tools handlers
@@ -230,7 +280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const themeSettings = collectThemeSettings();
         
         // Save theme settings to extension state
-        await updateState({ 
+        await StateManager.updateState({ 
           customTheme: themeSettings 
         });
         
@@ -278,7 +328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadThemeSettings(defaultTheme);
         
         // Save default theme to extension state
-        await updateState({ 
+        await StateManager.updateState({ 
           customTheme: defaultTheme 
         });
         
@@ -322,6 +372,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check server connection if in advanced mode
   if (state.mode === 'advanced') {
     checkServerConnection();
+  }
+
+  async function listAndRenderForms() {
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    const response = await browser.tabs.sendMessage(tab.id, { action: 'listForms' });
+    console.log('Forms from content:', response.forms);
+    FormListRenderer.render(response.forms);
   }
 });
 
@@ -491,19 +548,6 @@ function getCurrentDateTime() {
   const seconds = String(now.getUTCSeconds()).padStart(2, '0');
   
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
-// Update state in background script
-async function updateState(newState) {
-  try {
-    await browser.runtime.sendMessage({ 
-      action: 'setState', 
-      state: newState 
-    });
-    console.log("State updated successfully:", newState);
-  } catch (error) {
-    console.error("Error updating state:", error);
-  }
 }
 
 // Check server connection
